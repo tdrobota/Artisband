@@ -1,0 +1,15 @@
+# Cloudflare Pages redirects
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Once your real domain is set up, uncomment and edit ONE of the two lines
+# below to force a single canonical version (pick www OR non-www — not both).
+# This matters for SEO: Google treats www and non-www as different sites
+# unless you redirect one to the other.
+#
+# Redirect www -> apex (matches the canonical/og:url tags already set on your pages):
+https://www.artisband.ro/* https://artisband.ro/:splat 301
+#
+# OR, if you'd rather use www as the canonical version instead, comment the
+# line above and uncomment this one (and update the canonical tags in
+# index.html/about.html to match):
+# https://artisband.ro/* https://www.artisband.ro/:splat 301
