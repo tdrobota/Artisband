@@ -665,7 +665,21 @@
     // position:fixed, since we have a navbar, footer and video grid around
     // this scene (nothing to release into on the original, which is why it
     // could get away with plain fixed positioning).
-    if (window.gsap && window.ScrollTrigger) {
+    // Wrapped in a load-time init (rather than running inline at parse
+    // time) and guarded so it only ever runs once. On the live Cloudflare
+    // deploy this scene's pin silently never got created even though gsap/
+    // ScrollTrigger were present and the exact same code worked fine when
+    // re-run manually from the console after load, pointing at a timing
+    // race with Webflow's own GSAP-based interactions runtime
+    // (interactions.js) rather than a missing dependency. Running this
+    // after the window 'load' event (all assets/fonts settled, Webflow's
+    // own init long done) avoids that race; falls back to running
+    // immediately if the page has already finished loading by the time
+    // this script executes.
+    function initHeroScene() {
+      if (window.__heroSceneInit || !(window.gsap && window.ScrollTrigger)) return;
+      window.__heroSceneInit = true;
+
       gsap.registerPlugin(ScrollTrigger);
 
       gsap
@@ -713,6 +727,8 @@
           0.5
         );
 
+      ScrollTrigger.refresh();
+
       var heroArrowBtn = document.querySelector('#work-hero-arrow-btn');
       if (heroArrowBtn) {
         heroArrowBtn.addEventListener('mouseenter', function () {
@@ -729,6 +745,12 @@
           window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
         });
       }
+    }
+
+    if (document.readyState === 'complete') {
+      initHeroScene();
+    } else {
+      window.addEventListener('load', initHeroScene);
     }
   </script>
 </body>
