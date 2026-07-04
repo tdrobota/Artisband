@@ -1692,8 +1692,20 @@ figcaption {
 }
 
 .home-about_component {
-  width: 100vw;
-  height: 100vh;
+  /* Default (pre-JS) size matches the scroll-linked interaction's own value
+     at scroll position 0 (12vw/10vh), not the fully-grown 100vw/100vh end
+     state. Webflow's scroll-linked interaction sets this element's actual
+     width/height via inline style once it computes the current scroll
+     position, but that computation can lag a beat behind the page's first
+     paint (this element's own "hide until interactions are ready" CSS
+     guard only delays visibility, not size, so once revealed it would
+     otherwise flash at this rule's 100vw/100vh default until JS catches
+     up and shrinks it down). Starting from the same small size JS would
+     set anyway removes that flash: the inline style, once applied,
+     matches or grows from here with no visible jump.
+   */
+  width: 12vw;
+  height: 10vh;
   padding: var(--fixed--1rem);
   justify-content: center;
   align-items: center;

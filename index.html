@@ -484,6 +484,16 @@
     // inside WhatsApp themselves, which is also what keeps this naturally
     // spam-resistant without needing Turnstile/honeypot/server validation.
     (function () {
+      // Each of this file's independent setup blocks is now wrapped in its
+      // own try/catch (matching the same fix applied to work.html after
+      // the WhatsApp popup and booking calendar were found to silently
+      // stop working there: an uncaught throw partway through one block
+      // was aborting every statement after it for the rest of this script
+      // tag, with no console error surfaced by the tooling used to find
+      // it). Isolating each block means a failure in one can no longer
+      // take down the others, and any real error now gets logged with
+      // enough context to identify which block and why.
+      try {
       var WHATSAPP_NUMBER = '40740326997';
 
       var eventTypeLabels = {
@@ -559,12 +569,16 @@
 
       // Popup form, uses the custom calendar below instead of a native input.
       bindBookingForm(document.getElementById('popup-booking-form'));
+      } catch (err) {
+        console.error('[artis:cta-booking-form]', err);
+      }
     })();
 
     // Booking popup: open/close, plus the custom calendar (calendar on the
     // right, form fields on the left) that fills the popup form's hidden
     // eventDate field.
     (function () {
+      try {
       var modal = document.getElementById('booking-modal');
       if (!modal) return;
 
@@ -701,12 +715,16 @@
       });
 
       renderCalendar();
+      } catch (err) {
+        console.error('[artis:booking-popup-calendar]', err);
+      }
     })();
 
     // Floating WhatsApp button: normally fixed to the bottom right corner, but
     // docks in place just above the footer once scrolling reaches it, instead
     // of floating over the footer's own content for the rest of the scroll.
     (function () {
+      try {
       var btn = document.querySelector('.whatsapp-float');
       var footer = document.querySelector('.footer');
       if (!btn || !footer) return;
@@ -746,6 +764,9 @@
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll);
       update();
+      } catch (err) {
+        console.error('[artis:whatsapp-dock]', err);
+      }
     })();
   </script>
 </body>
