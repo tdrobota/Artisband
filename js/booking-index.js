@@ -292,4 +292,164 @@
   update();
 
   // Hide the floating button once the contact/booking section starts
-  // e
+  // entering the viewport, it otherwise sits on top of the form the
+  // visitor is trying to fill in. Plain IntersectionObserver at the
+  // default threshold (0) fires as soon as a single pixel of the section
+  // is visible, i.e. exactly "starting to be seen", no rootMargin tuning
+  // needed.
+  var ctaSection = document.querySelector('.section_cta');
+  if (ctaSection && 'IntersectionObserver' in window) {
+    var ctaObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        btn.classList.toggle('is-hidden', entry.isIntersecting);
+      });
+    });
+    ctaObserver.observe(ctaSection);
+  }
+  } catch (err) {
+    console.error('[artis:whatsapp-dock]', err);
+  }
+})();
+
+// "Ce oferim" section heading: a word-by-word highlight/fill effect tied
+// to scroll position while .services_content stays pinned and
+// .services_items' image stack scrolls past underneath it. On desktop
+// this is handled by Webflow's own built-in interaction (content and
+// items sit in separate grid columns there) and works fine; on
+// phone-width screens the heading never visibly highlighted, the words
+// were just static. Rebuilt here with GSAP (already loaded on this page
+// for other things): split the heading into words, start them dim, and
+// scrub them to full brightness while .services_content is pinned via
+// ScrollTrigger (see below) across .services_component's own top-to-
+// bottom scroll span, so the highlight always finishes right as the pin
+// releases and normal scrolling continues, same felt experience as
+// desktop. Scoped to phone widths only so it doesn't double up with (or
+// fight) whatever Webflow's own interaction is doing on desktop.
+function initServicesHighlight() {
+  if (window.__servicesHighlightInit) return;
+  if (!(window.gsap && window.ScrollTrigger && window.SplitText)) return;
+  if (!window.matchMedia('(max-width: 479px)').matches) return;
+  window.__servicesHighlightInit = true;
+
+  try {
+    gsap.registerPlugin(ScrollTrigger, SplitText);
+
+    var heading = document.querySelector('.section_services .heading-style-h3');
+    var component = document.querySelector('.services_component');
+    var content = document.querySelector('.services_content');
+    if (!heading || !component || !content) return;
+
+    var split = new SplitText(heading, { type: 'words' });
+
+    // Dim starting state is set via GSAP, not CSS, so if this script ever
+    // fails to run for any reason the heading just shows its normal full
+    // -brightness color from the start instead of getting stuck faded.
+    gsap.set(split.words, { color: 'rgba(255, 255, 255, 0.28)' });
+
+    // Pinning happens here too (pin: content), not via CSS position:
+    // sticky. Tried plain sticky first: .services_content and
+    // .services_items are stacked in the SAME column on mobile (unlike
+    // desktop's two side-by-side grid columns), and sticky doesn't
+    // reserve any extra flow space for itself while pinned, so
+    // .services_items scrolled up and visibly overlapped/cut through the
+    // still-pinned heading. ScrollTrigger's pin inserts a real spacer
+    // sized to match, so .services_items only ever starts right where the
+    // pinned heading visually finishes. start's "top+=72" offset keeps
+    // the pinned heading below the fixed mobile navbar instead of
+    // flush against the very top edge of the viewport.
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: component,
+        start: 'top top+=72',
+        end: 'bottom bottom',
+        scrub: true,
+        pin: content,
+        pinSpacing: true,
+        anticipatePin: 1
+      }
+    }).to(split.words, {
+      color: '#ffffff',
+      stagger: 0.08,
+      ease: 'none'
+    });
+  } catch (err) {
+    console.error('[artis:services-highlight]', err);
+  }
+}
+
+if (document.readyState === 'complete') {
+  initServicesHighlight();
+}
+window.addEventListener('load', initServicesHighlight);
+setTimeout(initServicesHighlight, 1500);
+
+// .home-about_component (the "Noi suntem [image] Artis Band" hero) is
+// supposed to grow from a small 12vw/10vh rectangle up to a full-bleed
+// image as the user scrolls through .home-about_wrapper, same as it does
+// on desktop via Webflow's own interaction. On mobile widths Webflow's
+// interaction computes a broken shape instead (a tall, narrow, cropped
+// strip that never resolves correctly), so this replaces it with a custom
+// GSAP ScrollTrigger scrub, scoped to <=991px to match the CSS breakpoint
+// in site.css that forces this element's width/height via !important.
+//
+// That CSS rule reads its value from --home-about-width/--home-about-height
+// custom properties (falling back to 12vw/10vh if this script never runs).
+// Writing the live scroll-driven value into those two custom properties,
+// rather than directly animating width/height, is what makes the
+// !important override still show a moving/growing size instead of a
+// permanently frozen one: the !important rule always wins against
+// whatever plain inline width/height Webflow's own JS keeps trying to
+// set, but it re-reads the custom properties on every recalculation, so
+// this script's live values (not Webflow's) are what actually gets shown.
+function initHomeAboutGrow() {
+  if (window.__homeAboutGrowInit) return;
+  if (!(window.gsap && window.ScrollTrigger)) return;
+  if (!window.matchMedia('(max-width: 991px)').matches) return;
+  window.__homeAboutGrowInit = true;
+
+  try {
+    gsap.registerPlugin(ScrollTrigger);
+
+    var wrapper = document.querySelector('.home-about_wrapper');
+    var component = document.querySelector('.home-about_component');
+    if (!wrapper || !component) return;
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    // Writes the two custom properties directly via setProperty on every
+    // scroll tick, instead of handing a gsap.fromTo() tween the custom
+    // properties as its target values. Verified live: a plain fromTo
+    // tween's rendered custom-property value got stuck part-way through
+    // and stopped tracking scroll position once Webflow's own competing
+    // interaction (also targeting this same element, for its own,
+    // separate width/height inline styles) started writing to the
+    // element on the same ticks. Recomputing and re-writing the two
+    // custom properties explicitly here, every time ScrollTrigger fires,
+    // guarantees this element's --home-about-width/height always reflect
+    // the current scroll position, with no dependency on GSAP's internal
+    // "skip render if nothing changed" caching around the tween itself.
+    function render(self) {
+      component.style.setProperty('--home-about-width', lerp(12, 100, self.progress) + 'vw');
+      component.style.setProperty('--home-about-height', lerp(10, 100, self.progress) + 'vh');
+    }
+
+    ScrollTrigger.create({
+      trigger: wrapper,
+      start: 'top top',
+      end: '+=100%',
+      scrub: true,
+      onUpdate: render,
+      onRefresh: render
+    });
+  } catch (err) {
+    console.error('[artis:home-about-grow]', err);
+  }
+}
+
+if (document.readyState === 'complete') {
+  initHomeAboutGrow();
+}
+window.addEventListener('load', initHomeAboutGrow);
+setTimeout(initHomeAboutGrow, 1500);
