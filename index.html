@@ -63,7 +63,6 @@
     <main class="main-wrapper">
       <section class="section_home-about">
         <div class="home-about_wrapper">
-          <div class="lottie-animation" data-w-id="0db8b40c-f7ca-aa1e-f310-f1a9b57830aa" data-animation-type="lottie" data-src="documents/Scroll-Down.lottie" data-loop="1" data-direction="1" data-autoplay="1" data-is-ix2-target="0" data-renderer="svg" data-default-duration="0" data-duration="1.5" data-loading="eager"></div>
           <div class="home-about_sticky">
             <div class="home-about_component">
               <h2 class="home-about_heading _1">Noi suntem</h2>
@@ -76,6 +75,16 @@
                 <div class="animation-scroll-padding"></div>
               </div>
             </div>
+            <!--
+              Was a sibling before .home-about_sticky, in normal flow inside
+              the 200rem-tall .home-about_wrapper: scrolled out of view
+              within the first ~100px of the page, long before the pinned
+              scroll sequence below it even gets going. Moved inside the
+              sticky box itself (absolutely positioned, see site.css) so it
+              stays anchored to the bottom of the viewport for the entire
+              pinned duration instead of vanishing almost immediately.
+            -->
+            <div class="lottie-animation" data-w-id="0db8b40c-f7ca-aa1e-f310-f1a9b57830aa" data-animation-type="lottie" data-src="documents/Scroll-Down.lottie" data-loop="1" data-direction="1" data-autoplay="1" data-is-ix2-target="0" data-renderer="svg" data-default-duration="0" data-duration="1.5" data-loading="eager"></div>
           </div>
         </div>
       </section>
@@ -263,31 +272,34 @@
           <section class="gallery-slider">
             <div class="container">
               <div class="gallery-wrapper">
-                <div id="w-node-_665ba120-e722-fbfb-d7e6-027eb71d060d-3a338b52" class="gallery-block">
+                <div class="gallery-block">
                   <h3 class="heading">Momente live</h3>
                 </div>
-                <div data-delay="4000" data-animation="slide" class="gallery-slide w-slider" data-autoplay="false" data-easing="ease" data-hide-arrows="true" data-disable-swipe="false" data-autoplay-limit="0" data-nav-spacing="3" data-duration="500" data-infinite="true" id="w-node-_665ba120-e722-fbfb-d7e6-027eb71d0612-3a338b52">
-                  <div class="w-slider-mask">
-                    <div class="gallery-slide-wrapper w-slide">
-                      <div class="gallery-slide-image"><img id="w-node-_665ba120-e722-fbfb-d7e6-027eb71d0616-3a338b52" sizes="(max-width: 1857px) 100vw, 1857px" src="images/68785894_2292185044237486_5690347590026002432_n.jpg" loading="lazy" alt="" srcset="images/68785894_2292185044237486_5690347590026002432_n-p-500.jpg 500w, images/68785894_2292185044237486_5690347590026002432_n-p-800.jpg 800w, images/68785894_2292185044237486_5690347590026002432_n-p-1080.jpg 1080w, images/68785894_2292185044237486_5690347590026002432_n.jpg 1857w" class="gallery-image"></div>
-                    </div>
-                    <div class="gallery-slide-wrapper w-slide">
-                      <div class="gallery-slide-image"><img sizes="(max-width: 2048px) 100vw, 2048px" srcset="images/485418889_9225040254285229_2877629271048540718_n-p-500.jpg 500w, images/485418889_9225040254285229_2877629271048540718_n-p-800.jpg 800w, images/485418889_9225040254285229_2877629271048540718_n-p-1080.jpg 1080w, images/485418889_9225040254285229_2877629271048540718_n-p-1600.jpg 1600w, images/485418889_9225040254285229_2877629271048540718_n-p-2000.jpg 2000w, images/485418889_9225040254285229_2877629271048540718_n.jpg 2048w" src="images/485418889_9225040254285229_2877629271048540718_n.jpg" loading="lazy" alt="" class="gallery-image"></div>
-                    </div>
-                    <div class="gallery-slide-wrapper w-slide">
-                      <div class="gallery-slide-image"><img id="w-node-_665ba120-e722-fbfb-d7e6-027eb71d0620-3a338b52" sizes="(max-width: 1365px) 100vw, 1365px" src="images/649230069_18349564756236226_49583131164804747_n.jpg" loading="lazy" alt="" srcset="images/649230069_18349564756236226_49583131164804747_n-p-500.jpg 500w, images/649230069_18349564756236226_49583131164804747_n-p-800.jpg 800w, images/649230069_18349564756236226_49583131164804747_n-p-1080.jpg 1080w, images/649230069_18349564756236226_49583131164804747_n.jpg 1365w" class="gallery-image"></div>
-                    </div>
-                    <div class="gallery-slide-wrapper w-slide">
-                      <div class="gallery-slide-image"><img id="w-node-_665ba120-e722-fbfb-d7e6-027eb71d0625-3a338b52" sizes="(max-width: 1365px) 100vw, 1365px" src="images/649073327_18349564804236226_1244148594410605352_n.jpg" loading="lazy" alt="" srcset="images/649073327_18349564804236226_1244148594410605352_n-p-500.jpg 500w, images/649073327_18349564804236226_1244148594410605352_n-p-800.jpg 800w, images/649073327_18349564804236226_1244148594410605352_n-p-1080.jpg 1080w, images/649073327_18349564804236226_1244148594410605352_n.jpg 1365w" class="gallery-image"></div>
-                    </div>
+                <!--
+                  Was a Webflow w-slider (arrow-driven, one slide visible at a
+                  time), but the site has no webflow.js core runtime (only
+                  jquery/interactions.js/gsap are loaded, see the script tags
+                  near the end of <body>), which is what actually powers
+                  slide-advancing, arrow clicks and swipe for that component.
+                  Without it the slider just sat on slide 1 forever with dead
+                  arrow buttons. Replaced with a simple always-moving
+                  horizontal marquee (pure CSS animation, no JS/arrows needed
+                  at all) per client request. The image list below is
+                  duplicated once immediately after itself so the loop can
+                  wrap seamlessly at the halfway point (see .gallery-marquee_track's
+                  animation in site.css).
+                -->
+                <div class="gallery-marquee">
+                  <div class="gallery-marquee_track">
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/68785894_2292185044237486_5690347590026002432_n.jpg" loading="lazy" alt="" srcset="images/68785894_2292185044237486_5690347590026002432_n-p-500.jpg 500w, images/68785894_2292185044237486_5690347590026002432_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/485418889_9225040254285229_2877629271048540718_n.jpg" loading="lazy" alt="" srcset="images/485418889_9225040254285229_2877629271048540718_n-p-500.jpg 500w, images/485418889_9225040254285229_2877629271048540718_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/649230069_18349564756236226_49583131164804747_n.jpg" loading="lazy" alt="" srcset="images/649230069_18349564756236226_49583131164804747_n-p-500.jpg 500w, images/649230069_18349564756236226_49583131164804747_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/649073327_18349564804236226_1244148594410605352_n.jpg" loading="lazy" alt="" srcset="images/649073327_18349564804236226_1244148594410605352_n-p-500.jpg 500w, images/649073327_18349564804236226_1244148594410605352_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/68785894_2292185044237486_5690347590026002432_n.jpg" loading="lazy" alt="" srcset="images/68785894_2292185044237486_5690347590026002432_n-p-500.jpg 500w, images/68785894_2292185044237486_5690347590026002432_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/485418889_9225040254285229_2877629271048540718_n.jpg" loading="lazy" alt="" srcset="images/485418889_9225040254285229_2877629271048540718_n-p-500.jpg 500w, images/485418889_9225040254285229_2877629271048540718_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/649230069_18349564756236226_49583131164804747_n.jpg" loading="lazy" alt="" srcset="images/649230069_18349564756236226_49583131164804747_n-p-500.jpg 500w, images/649230069_18349564756236226_49583131164804747_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/649073327_18349564804236226_1244148594410605352_n.jpg" loading="lazy" alt="" srcset="images/649073327_18349564804236226_1244148594410605352_n-p-500.jpg 500w, images/649073327_18349564804236226_1244148594410605352_n-p-800.jpg 800w" class="gallery-image"></div>
                   </div>
-                  <div class="gallery-slider-left w-slider-arrow-left">
-                    <div class="arrow-wrapper"><img src="images/chevron-left.svg" loading="lazy" alt="" class="slider-arrow-embed"></div>
-                  </div>
-                  <div class="gallery-slider-right w-slider-arrow-right">
-                    <div class="arrow-wrapper"><img src="images/chevron-right.svg" loading="lazy" alt="" class="slider-arrow-embed"></div>
-                  </div>
-                  <div class="gallery-slide-nav w-slider-nav w-round"></div>
                 </div>
               </div>
             </div>
@@ -374,108 +386,4 @@
           <div class="footer-new_brand">
             <img src="images/logo-white.svg" loading="lazy" alt="Artis Band" class="footer-new_logo">
             <p class="footer-new_tagline">Muzică live pentru nunți, botezuri și evenimente de neuitat.</p>
-            <div class="footer_copyright">© 2026 Artis Band</div>
-          </div>
-          <div class="footer-new_col">
-            <div class="footer-new_col-title">Navigare</div>
-            <a href="index.html" aria-current="page" class="footer_link w--current">Acasă</a>
-            <a href="about.html" class="footer_link">Despre Noi</a>
-            <a href="work.html" class="footer_link">Portofoliu</a>
-          </div>
-          <div class="footer-new_col">
-            <div class="footer-new_col-title">Contact</div>
-            <a href="tel:0740326997" class="footer_link">0740 326 997</a>
-            <a href="mailto:contact@artisband.ro" class="footer_link">contact@artisband.ro</a>
-            <button type="button" class="footer_link footer-new_book-link" data-open-booking>Rezervă un eveniment</button>
-          </div>
-          <div class="footer-new_col">
-            <div class="footer-new_col-title">Social</div>
-            <div class="footer_social">
-              <a href="https://www.instagram.com/artisband/" target="_blank" rel="noopener" class="footer_social-media-wrap w-inline-block"><img loading="lazy" src="images/social-insta.svg" alt="" class="footer_social-media"></a>
-              <a href="https://www.youtube.com/@artisbandsv2086" target="_blank" rel="noopener" class="footer_social-media-wrap w-inline-block"><img loading="lazy" src="images/social-yt.svg" alt="" class="footer_social-media"></a>
-              <a href="https://www.facebook.com/artisbandsv" target="_blank" rel="noopener" class="footer_social-media-wrap w-inline-block"><img loading="lazy" src="images/social-fb.svg" alt="" class="footer_social-media"></a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </div>
-  <!-- Floating WhatsApp button, opens the booking popup. -->
-  <button type="button" class="whatsapp-float" aria-label="Rezervă pe WhatsApp" data-open-booking>
-    <span class="whatsapp-float-ripple"></span>
-    <img src="images/whatsapp-icon-dark.svg" alt="" class="whatsapp-float-icon">
-  </button>
-  <!-- Booking popup: calendar on the right, form fields on the left. -->
-  <div class="booking-modal" id="booking-modal" aria-hidden="true">
-    <div class="booking-modal_overlay" data-modal-close></div>
-    <div class="booking-modal_dialog" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
-      <button type="button" class="booking-modal_close" data-modal-close aria-label="Închide">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L15 15M15 1L1 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      </button>
-      <div class="booking-modal_grid">
-        <div class="booking-modal_form-col">
-          <h3 id="booking-modal-title" class="booking-modal_title">Rezervă Artis Band</h3>
-          <p class="booking-modal_subtitle">Completează detaliile, iar noi revenim cu disponibilitatea pe WhatsApp.</p>
-          <form id="popup-booking-form" class="form" data-booking-form>
-            <div class="form-field">
-              <label class="form-label" for="popup-name">Nume complet</label>
-              <input class="form-input" maxlength="256" name="name" placeholder="Cum te numești?" type="text" id="popup-name">
-            </div>
-            <div class="form-field">
-              <div class="form-label">Tipul evenimentului</div>
-              <div class="event-type-group" role="radiogroup" aria-label="Tipul evenimentului">
-                <input class="event-type-input" type="radio" id="popup-event-type-nunta" name="eventType" value="Nunta" required>
-                <label class="event-type-btn" for="popup-event-type-nunta">Nuntă</label>
-                <input class="event-type-input" type="radio" id="popup-event-type-botez" name="eventType" value="Botez">
-                <label class="event-type-btn" for="popup-event-type-botez">Botez</label>
-                <input class="event-type-input" type="radio" id="popup-event-type-alt" name="eventType" value="Alt-eveniment">
-                <label class="event-type-btn" for="popup-event-type-alt">Alt eveniment</label>
-              </div>
-            </div>
-            <div class="form-field">
-              <label class="form-label" for="popup-city">Orașul</label>
-              <input class="form-input" maxlength="256" name="city" placeholder="Ex: Cluj-Napoca" type="text" id="popup-city" required>
-            </div>
-            <div class="form-field">
-              <label class="form-label" for="popup-venue">Locația</label>
-              <input class="form-input" maxlength="256" name="venue" placeholder="Sala sau locul evenimentului" type="text" id="popup-venue" required>
-            </div>
-            <input type="hidden" name="eventDate" id="popup-event-date" required>
-            <button type="submit" class="submit-button form-submit">
-              <span>Trimite pe WhatsApp</span>
-              <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon">
-            </button>
-          </form>
-          <div class="w-form-done" role="alert" data-booking-done>
-            <div>Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.</div>
-          </div>
-          <div class="w-form-fail" role="alert" data-booking-fail>
-            <div>Te rugăm să completezi toate câmpurile, tipul evenimentului și data.</div>
-          </div>
-        </div>
-        <div class="booking-modal_calendar-col">
-          <div class="form-label">Data</div>
-          <div class="booking-calendar" data-booking-calendar>
-            <div class="booking-calendar_header">
-              <button type="button" class="booking-calendar_nav" data-cal-prev aria-label="Luna anterioară">‹</button>
-              <div class="booking-calendar_month" data-cal-month></div>
-              <button type="button" class="booking-calendar_nav" data-cal-next aria-label="Luna următoare">›</button>
-            </div>
-            <div class="booking-calendar_weekdays">
-              <span>L</span><span>Ma</span><span>Mi</span><span>J</span><span>V</span><span>S</span><span>D</span>
-            </div>
-            <div class="booking-calendar_days" data-cal-days></div>
-            <div class="booking-calendar_selected" data-cal-selected>Alege o dată</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script src="js/jquery.min.js" type="text/javascript"></script>
-  <script src="js/interactions.js" type="text/javascript"></script>
-  <script src="js/gsap/gsap.min.js" type="text/javascript"></script>
-  <script src="js/gsap/SplitText.min.js" type="text/javascript"></script>
-  <script src="js/gsap/ScrollTrigger.min.js" type="text/javascript"></script>
-  <script src="js/booking-index.js" type="text/javascript"></script>
-</body>
-</html>
+            <div class="footer_copy

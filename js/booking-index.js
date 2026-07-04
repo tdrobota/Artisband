@@ -290,7 +290,6 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   update();
-  } catch (err) {
-    console.error('[artis:whatsapp-dock]', err);
-  }
-})();
+
+  // Hide the floating button once the contact/booking section starts
+  // e

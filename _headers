@@ -33,7 +33,3 @@
 # would mean returning visitors don't see updates until the cache expires.
 # Keeping this short until you adopt cache-busting (see note below).
 /css/*
-  Cache-Control: public, max-age=86400, must-revalidate
-
-/js/*
-  Cache-Control: public, max-age=86400, must-revalidate
