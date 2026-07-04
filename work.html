@@ -619,4 +619,117 @@
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
-        frameWrap.innerHTML =
+        frameWrap.innerHTML = '';
+      }
+
+      cards.forEach(function (card) {
+        card.addEventListener('click', function () {
+          var id = card.getAttribute('data-video-id');
+          if (id) openVideo(id);
+        });
+      });
+
+      closeTriggers.forEach(function (el) {
+        el.addEventListener('click', closeVideo);
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeVideo();
+      });
+
+      if (dialog) {
+        dialog.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+      }
+    })();
+
+    // Pinned scroll scene, same pin mechanic as the client's original
+    // reference (https://codepen.io/creativeocean/pen/qBbBLyB): the
+    // sky/mountain photo layers are gone (swapped for a flat yellow
+    // background, see the CSS), and the three cloud photo layers have been
+    // swapped for three CSS stage-light glows (client asked for something
+    // more music-related than clouds), still drifting at the same
+    // independent rates as the reference's own timeline, just moving glow
+    // blobs instead of cloud images now. Client feedback on an earlier
+    // pass: the clouds just clipping at the section's edge while both
+    // texts sat directly on yellow looked unfinished, they wanted whatever
+    // drifts through to actually resolve into a white background before
+    // the second piece of copy appears on it (closer to how the
+    // reference's own cloud-mask trick worked). So this timeline layers
+    // three things: light drift (same values as the old cloud drift), the
+    // first text fading out as the lights sweep through, a plain white
+    // panel (.work-hero_whiteout) fading in right behind it, and only then
+    // the second text fading in on top of that now-white panel. Pin still
+    // uses ScrollTrigger's own pin:true rather than the reference's plain
+    // position:fixed, since we have a navbar, footer and video grid around
+    // this scene (nothing to release into on the original, which is why it
+    // could get away with plain fixed positioning).
+    if (window.gsap && window.ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: '.work-hero_scene',
+            start: 'top top',
+            end: '+=100%',
+            scrub: 1,
+            pin: true,
+          }
+        })
+        .fromTo('.work-hero_light.is-1', { y: 100 }, { y: -800, duration: 0.5 }, 0)
+        .fromTo('.work-hero_light.is-2', { y: -150 }, { y: -500, duration: 0.5 }, 0)
+        .fromTo('.work-hero_light.is-3', { y: -50 }, { y: -650, duration: 0.5 }, 0)
+        .to('.work-hero_content.is-1', { autoAlpha: 0, y: -40, duration: 0.3 }, 0.05)
+        .fromTo(
+          '.work-hero_whiteout',
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.3 },
+          0.25
+        )
+        .fromTo(
+          '.work-hero_light.is-4',
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.3 },
+          0.25
+        )
+        .fromTo(
+          '.work-hero_light.is-5',
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.3 },
+          0.32
+        )
+        .fromTo(
+          '.work-hero_light.is-6',
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.3 },
+          0.39
+        )
+        .fromTo(
+          '.work-hero_content.is-2',
+          { autoAlpha: 0, y: 40 },
+          { autoAlpha: 1, y: 0, duration: 0.35 },
+          0.5
+        );
+
+      var heroArrowBtn = document.querySelector('#work-hero-arrow-btn');
+      if (heroArrowBtn) {
+        heroArrowBtn.addEventListener('mouseenter', function () {
+          gsap.to('.work-hero_arrow', { y: 10, duration: 0.8, ease: 'back.inOut(3)', overwrite: 'auto' });
+        });
+        heroArrowBtn.addEventListener('mouseleave', function () {
+          gsap.to('.work-hero_arrow', { y: 0, duration: 0.5, ease: 'power3.out', overwrite: 'auto' });
+        });
+        heroArrowBtn.addEventListener('click', function () {
+          // Native smooth scroll instead of GSAP's ScrollToPlugin (not
+          // self-hosted here, and the browser's built-in easing is close
+          // enough for this), skips pulling in another script for one
+          // small interaction.
+          window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+        });
+      }
+    }
+  </script>
+</body>
+</html>

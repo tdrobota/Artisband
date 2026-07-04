@@ -384,4 +384,369 @@
           </div>
           <div class="footer-new_col">
             <div class="footer-new_col-title">Contact</div>
-           
+            <a href="tel:0740326997" class="footer_link">0740 326 997</a>
+            <a href="mailto:contact@artisband.ro" class="footer_link">contact@artisband.ro</a>
+            <button type="button" class="footer_link footer-new_book-link" data-open-booking>Rezervă un eveniment</button>
+          </div>
+          <div class="footer-new_col">
+            <div class="footer-new_col-title">Social</div>
+            <div class="footer_social">
+              <a href="https://www.instagram.com/artisband/" target="_blank" rel="noopener" class="footer_social-media-wrap w-inline-block"><img loading="lazy" src="images/social-insta.svg" alt="" class="footer_social-media"></a>
+              <a href="https://www.youtube.com/@artisbandsv2086" target="_blank" rel="noopener" class="footer_social-media-wrap w-inline-block"><img loading="lazy" src="images/social-yt.svg" alt="" class="footer_social-media"></a>
+              <a href="https://www.facebook.com/artisbandsv" target="_blank" rel="noopener" class="footer_social-media-wrap w-inline-block"><img loading="lazy" src="images/social-fb.svg" alt="" class="footer_social-media"></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <!-- Floating WhatsApp button, opens the booking popup. -->
+  <button type="button" class="whatsapp-float" aria-label="Rezervă pe WhatsApp" data-open-booking>
+    <span class="whatsapp-float-ripple"></span>
+    <img src="images/whatsapp-icon-dark.svg" alt="" class="whatsapp-float-icon">
+  </button>
+  <!-- Booking popup: calendar on the right, form fields on the left. -->
+  <div class="booking-modal" id="booking-modal" aria-hidden="true">
+    <div class="booking-modal_overlay" data-modal-close></div>
+    <div class="booking-modal_dialog" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
+      <button type="button" class="booking-modal_close" data-modal-close aria-label="Închide">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L15 15M15 1L1 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <div class="booking-modal_grid">
+        <div class="booking-modal_form-col">
+          <h3 id="booking-modal-title" class="booking-modal_title">Rezervă Artis Band</h3>
+          <p class="booking-modal_subtitle">Completează detaliile, iar noi revenim cu disponibilitatea pe WhatsApp.</p>
+          <form id="popup-booking-form" class="form" data-booking-form>
+            <div class="form-field">
+              <label class="form-label" for="popup-name">Nume complet</label>
+              <input class="form-input" maxlength="256" name="name" placeholder="Cum te numești?" type="text" id="popup-name">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Tipul evenimentului</div>
+              <div class="event-type-group" role="radiogroup" aria-label="Tipul evenimentului">
+                <input class="event-type-input" type="radio" id="popup-event-type-nunta" name="eventType" value="Nunta" required>
+                <label class="event-type-btn" for="popup-event-type-nunta">Nuntă</label>
+                <input class="event-type-input" type="radio" id="popup-event-type-botez" name="eventType" value="Botez">
+                <label class="event-type-btn" for="popup-event-type-botez">Botez</label>
+                <input class="event-type-input" type="radio" id="popup-event-type-alt" name="eventType" value="Alt-eveniment">
+                <label class="event-type-btn" for="popup-event-type-alt">Alt eveniment</label>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="popup-city">Orașul</label>
+              <input class="form-input" maxlength="256" name="city" placeholder="Ex: Cluj-Napoca" type="text" id="popup-city" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="popup-venue">Locația</label>
+              <input class="form-input" maxlength="256" name="venue" placeholder="Sala sau locul evenimentului" type="text" id="popup-venue" required>
+            </div>
+            <input type="hidden" name="eventDate" id="popup-event-date" required>
+            <button type="submit" class="submit-button form-submit">
+              <span>Trimite pe WhatsApp</span>
+              <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon">
+            </button>
+          </form>
+          <div class="w-form-done" role="alert" data-booking-done>
+            <div>Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.</div>
+          </div>
+          <div class="w-form-fail" role="alert" data-booking-fail>
+            <div>Te rugăm să completezi toate câmpurile, tipul evenimentului și data.</div>
+          </div>
+        </div>
+        <div class="booking-modal_calendar-col">
+          <div class="form-label">Data</div>
+          <div class="booking-calendar" data-booking-calendar>
+            <div class="booking-calendar_header">
+              <button type="button" class="booking-calendar_nav" data-cal-prev aria-label="Luna anterioară">‹</button>
+              <div class="booking-calendar_month" data-cal-month></div>
+              <button type="button" class="booking-calendar_nav" data-cal-next aria-label="Luna următoare">›</button>
+            </div>
+            <div class="booking-calendar_weekdays">
+              <span>L</span><span>Ma</span><span>Mi</span><span>J</span><span>V</span><span>S</span><span>D</span>
+            </div>
+            <div class="booking-calendar_days" data-cal-days></div>
+            <div class="booking-calendar_selected" data-cal-selected>Alege o dată</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="js/jquery.min.js" type="text/javascript"></script>
+  <script src="js/interactions.js" type="text/javascript"></script>
+  <script src="js/gsap/gsap.min.js" type="text/javascript"></script>
+  <script src="js/gsap/SplitText.min.js" type="text/javascript"></script>
+  <script src="js/gsap/ScrollTrigger.min.js" type="text/javascript"></script>
+  <script>
+    // Booking, shared between the CTA section form (#booking-form, native date
+    // input) and the popup form (#popup-booking-form, custom calendar). Both
+    // submit the same way: build a pre-filled WhatsApp message and open wa.me
+    // with it. No backend involved, the visitor still has to press "Send"
+    // inside WhatsApp themselves, which is also what keeps this naturally
+    // spam-resistant without needing Turnstile/honeypot/server validation.
+    (function () {
+      var WHATSAPP_NUMBER = '40740326997';
+
+      var eventTypeLabels = {
+        Nunta: 'Nuntă',
+        Botez: 'Botez',
+        'Alt-eveniment': 'Alt eveniment'
+      };
+
+      function formatDate(isoDate) {
+        var parts = isoDate.split('-'); // yyyy-mm-dd
+        return parts.length === 3 ? (parts[2] + '.' + parts[1] + '.' + parts[0]) : isoDate;
+      }
+
+      function bindBookingForm(form) {
+        if (!form) return;
+
+        var wrap = form.closest('.form-wrap') || form.parentElement;
+        var doneMsg = wrap.querySelector('.w-form-done');
+        var failMsg = wrap.querySelector('.w-form-fail');
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (doneMsg) doneMsg.style.display = 'none';
+          if (failMsg) failMsg.style.display = 'none';
+
+          var formData = new FormData(form);
+          var name = (formData.get('name') || '').toString().trim();
+          var eventType = formData.get('eventType');
+          var eventDate = formData.get('eventDate');
+          var city = (formData.get('city') || '').toString().trim();
+          var venue = (formData.get('venue') || '').toString().trim();
+
+          if (!eventType || !eventDate || !city || !venue) {
+            if (failMsg) failMsg.style.display = 'block';
+            return;
+          }
+
+          var messageLines = [
+            'Salut! Aș vrea să rezerv Artis Band pentru un eveniment.',
+            '',
+            'Nume: ' + (name || '(nespecificat)'),
+            'Tip eveniment: ' + (eventTypeLabels[eventType] || eventType),
+            'Data: ' + formatDate(eventDate),
+            'Orașul: ' + city,
+            'Locația: ' + venue
+          ];
+
+          var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(messageLines.join('\n'));
+
+          if (doneMsg) doneMsg.style.display = 'block';
+          window.open(url, '_blank', 'noopener');
+        });
+      }
+
+      // CTA section form, keeps its native date input, enhanced so clicking
+      // anywhere on the field opens the calendar, not just the small icon.
+      var ctaForm = document.getElementById('booking-form');
+      var ctaDateInput = document.getElementById('event-date');
+      if (ctaDateInput) {
+        ctaDateInput.min = new Date().toISOString().slice(0, 10);
+        if (typeof ctaDateInput.showPicker === 'function') {
+          ctaDateInput.addEventListener('click', function () {
+            try {
+              ctaDateInput.showPicker();
+            } catch (err) {
+              // Ignore: some browsers throw if called outside a direct user
+              // gesture or while another picker is already open.
+            }
+          });
+        }
+      }
+      bindBookingForm(ctaForm);
+
+      // Popup form, uses the custom calendar below instead of a native input.
+      bindBookingForm(document.getElementById('popup-booking-form'));
+    })();
+
+    // Booking popup: open/close, plus the custom calendar (calendar on the
+    // right, form fields on the left) that fills the popup form's hidden
+    // eventDate field.
+    (function () {
+      var modal = document.getElementById('booking-modal');
+      if (!modal) return;
+
+      function formatDate(isoDate) {
+        var parts = isoDate.split('-'); // yyyy-mm-dd
+        return parts.length === 3 ? (parts[2] + '.' + parts[1] + '.' + parts[0]) : isoDate;
+      }
+
+      var openTriggers = document.querySelectorAll('[data-open-booking]');
+      var closeTriggers = modal.querySelectorAll('[data-modal-close]');
+      var dialog = modal.querySelector('.booking-modal_dialog');
+
+      function openModal() {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        var firstField = document.getElementById('popup-name');
+        if (firstField) firstField.focus({ preventScroll: true });
+      }
+
+      function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      openTriggers.forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          openModal();
+        });
+      });
+
+      closeTriggers.forEach(function (el) {
+        el.addEventListener('click', closeModal);
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+      });
+
+      if (dialog) {
+        dialog.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+      }
+
+      // Calendar.
+      var monthNames = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie',
+        'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'];
+
+      var monthLabel = modal.querySelector('[data-cal-month]');
+      var daysWrap = modal.querySelector('[data-cal-days]');
+      var prevBtn = modal.querySelector('[data-cal-prev]');
+      var nextBtn = modal.querySelector('[data-cal-next]');
+      var selectedLabel = modal.querySelector('[data-cal-selected]');
+      var hiddenDateInput = document.getElementById('popup-event-date');
+
+      if (!monthLabel || !daysWrap) return;
+
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var view = { year: today.getFullYear(), month: today.getMonth() };
+      var selectedIso = null;
+
+      function isSameMonth(a, b) {
+        return a.year === b.year && a.month === b.month;
+      }
+
+      function renderCalendar() {
+        monthLabel.textContent = monthNames[view.month] + ' ' + view.year;
+        prevBtn.disabled = isSameMonth(view, { year: today.getFullYear(), month: today.getMonth() });
+
+        daysWrap.innerHTML = '';
+
+        var firstOfMonth = new Date(view.year, view.month, 1);
+        var offset = (firstOfMonth.getDay() + 6) % 7; // Monday-first offset.
+        var daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
+
+        for (var i = 0; i < offset; i++) {
+          var blank = document.createElement('div');
+          blank.className = 'booking-calendar_day-empty';
+          daysWrap.appendChild(blank);
+        }
+
+        for (var d = 1; d <= daysInMonth; d++) {
+          var cellDate = new Date(view.year, view.month, d);
+          var iso = cellDate.getFullYear() + '-' +
+            String(cellDate.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d).padStart(2, '0');
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'booking-calendar_day';
+          btn.textContent = d;
+          btn.setAttribute('data-date', iso);
+
+          if (cellDate < today) {
+            btn.disabled = true;
+          } else {
+            btn.addEventListener('click', function () {
+              selectedIso = this.getAttribute('data-date');
+              if (hiddenDateInput) hiddenDateInput.value = selectedIso;
+              daysWrap.querySelectorAll('.booking-calendar_day.is-selected').forEach(function (el) {
+                el.classList.remove('is-selected');
+              });
+              this.classList.add('is-selected');
+              if (selectedLabel) selectedLabel.textContent = 'Data aleasă: ' + formatDate(selectedIso);
+            });
+          }
+
+          if (selectedIso === iso) btn.classList.add('is-selected');
+
+          daysWrap.appendChild(btn);
+        }
+      }
+
+      prevBtn.addEventListener('click', function () {
+        view.month -= 1;
+        if (view.month < 0) {
+          view.month = 11;
+          view.year -= 1;
+        }
+        renderCalendar();
+      });
+
+      nextBtn.addEventListener('click', function () {
+        view.month += 1;
+        if (view.month > 11) {
+          view.month = 0;
+          view.year += 1;
+        }
+        renderCalendar();
+      });
+
+      renderCalendar();
+    })();
+
+    // Floating WhatsApp button: normally fixed to the bottom right corner, but
+    // docks in place just above the footer once scrolling reaches it, instead
+    // of floating over the footer's own content for the rest of the scroll.
+    (function () {
+      var btn = document.querySelector('.whatsapp-float');
+      var footer = document.querySelector('.footer');
+      if (!btn || !footer) return;
+
+      var GAP = 16; // breathing room above the footer, in px.
+      var docked = false;
+
+      function update() {
+        var footerTop = footer.getBoundingClientRect().top;
+        var reserved = btn.offsetHeight + GAP;
+
+        if (footerTop <= window.innerHeight - reserved) {
+          var footerDocTop = footerTop + window.scrollY;
+          btn.style.position = 'absolute';
+          btn.style.bottom = 'auto';
+          btn.style.top = (footerDocTop - btn.offsetHeight - GAP) + 'px';
+          docked = true;
+        } else if (docked) {
+          btn.style.position = '';
+          btn.style.top = '';
+          btn.style.bottom = '';
+          docked = false;
+        }
+      }
+
+      var ticking = false;
+      function onScroll() {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(function () {
+            update();
+            ticking = false;
+          });
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+    })();
+  </script>
+</body>
+</html>
