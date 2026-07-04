@@ -343,6 +343,20 @@
     // inside WhatsApp themselves, which is also what keeps this naturally
     // spam-resistant without needing Turnstile/honeypot/server validation.
     (function () {
+      // Each of this file's independent setup blocks is now wrapped in its
+      // own try/catch (added after the booking calendar, video lightbox and
+      // hero scene all mysteriously stopped initializing on the live
+      // Cloudflare deploy despite no visible console error, and despite
+      // every element/selector they depend on genuinely existing in the
+      // DOM). A single uncaught throw partway through one block used to
+      // silently abort every statement after it for the rest of this
+      // script tag, since browsers stop executing the remainder of a
+      // <script> block once an error escapes uncaught, without necessarily
+      // surfacing a message this tooling could see. Isolating each block
+      // means a failure in one (whatever it turns out to be) can no longer
+      // take down the others, and any real error now gets logged with
+      // enough context to identify which block and why.
+      try {
       var WHATSAPP_NUMBER = '40740326997';
 
       var eventTypeLabels = {
@@ -398,12 +412,16 @@
       }
 
       bindBookingForm(document.getElementById('popup-booking-form'));
+      } catch (err) {
+        console.error('[artis:cta-booking-form]', err);
+      }
     })();
 
     // Booking popup: open/close, plus the custom calendar (calendar on the
     // right, form fields on the left) that fills the popup form's hidden
     // eventDate field.
     (function () {
+      try {
       var modal = document.getElementById('booking-modal');
       if (!modal) return;
 
@@ -540,12 +558,16 @@
       });
 
       renderCalendar();
+      } catch (err) {
+        console.error('[artis:booking-popup-calendar]', err);
+      }
     })();
 
     // Floating WhatsApp button: normally fixed to the bottom right corner, but
     // docks in place just above the footer once scrolling reaches it, instead
     // of floating over the footer's own content for the rest of the scroll.
     (function () {
+      try {
       var btn = document.querySelector('.whatsapp-float');
       var footer = document.querySelector('.footer');
       if (!btn || !footer) return;
@@ -585,6 +607,9 @@
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll);
       update();
+      } catch (err) {
+        console.error('[artis:whatsapp-dock]', err);
+      }
     })();
 
     // Video showcase: clicking a card opens the lightbox with a playing
@@ -593,6 +618,7 @@
     // stops the video, simply hiding the modal would leave it playing
     // silently in the background.
     (function () {
+      try {
       var modal = document.getElementById('video-modal');
       if (!modal) return;
 
@@ -642,6 +668,9 @@
           e.stopPropagation();
         });
       }
+      } catch (err) {
+        console.error('[artis:video-lightbox]', err);
+      }
     })();
 
     // Pinned scroll scene, same pin mechanic as the client's original
@@ -680,6 +709,7 @@
       if (window.__heroSceneInit || !(window.gsap && window.ScrollTrigger)) return;
       window.__heroSceneInit = true;
 
+      try {
       gsap.registerPlugin(ScrollTrigger);
 
       gsap
@@ -745,13 +775,24 @@
           window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
         });
       }
+      } catch (err) {
+        console.error('[artis:hero-scene]', err);
+      }
     }
 
+    // Three independent triggers, all guarded by the same __heroSceneInit
+    // flag so only the first one to fire actually does anything: an
+    // immediate call if the page has already finished loading by the time
+    // this script runs, the standard window 'load' event for the normal
+    // case, and a 1.5s timeout as a last-resort fallback in case something
+    // on the page (Webflow's own interactions.js has its own GSAP-based
+    // init lifecycle running alongside this) ever prevents 'load' from
+    // reaching this listener.
     if (document.readyState === 'complete') {
       initHeroScene();
-    } else {
-      window.addEventListener('load', initHeroScene);
     }
+    window.addEventListener('load', initHeroScene);
+    setTimeout(initHeroScene, 1500);
   </script>
 </body>
 </html>
