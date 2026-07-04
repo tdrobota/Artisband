@@ -5940,6 +5940,16 @@ figcaption {
   overflow: hidden;
 }
 .event-type-btn {
+  /* The 3 pill labels are the actual flex items here (the radio inputs
+     are position: absolute, taken out of flow, so they don't participate
+     in the row) -- without flex: 1 they only size to their own text, so
+     the row (all 3 fit on one line already) left-aligns with a chunk of
+     unused space on the right instead of using the field's full width.
+     flex: 1 splits that width evenly across all 3 as equal-width
+     segments; text-align: center keeps each label centered within its
+     now-wider pill. If "Alt eveniment" wraps to 2 lines on very narrow
+     screens, the other two pills stretch to match its height too
+     (flex's default align-items: stretch), so the row still lines up. */
   color: var(--_colors---primary--black);
   cursor: pointer;
   background-color: #fff;
@@ -5948,7 +5958,9 @@ figcaption {
   padding: 10px 20px;
   font-size: .9rem;
   font-weight: 500;
+  text-align: center;
   transition: background-color .15s, color .15s, border-color .15s;
+  flex: 1;
   display: inline-block;
 }
 .event-type-input:checked + .event-type-btn {
@@ -6135,19 +6147,36 @@ figcaption {
   background-color: var(--_colors---grey--100);
 }
 .booking-modal_grid {
-  align-items: flex-start;
+  /* Grid (not flex) specifically so the submit button -- its own grid
+     area, "submit", now that it lives outside <form> -- can be
+     repositioned independently of the fields column on mobile: it needs
+     to render after the calendar there, not after the last field like it
+     does in this desktop 2-column layout. See the 767px override below
+     for the mobile area order. */
+  grid-template-columns: 1.1fr 19rem;
+  grid-template-areas: "form calendar"
+    "submit calendar";
+  align-items: start;
   gap: 3rem;
-  display: flex;
+  display: grid;
 }
 .booking-modal_form-col {
+  grid-area: form;
   min-width: 0;
-  flex: 1.1;
 }
 .booking-modal_calendar-col {
+  grid-area: calendar;
   flex-direction: column;
   gap: .4rem;
   width: 19rem;
   display: flex;
+}
+.booking-modal_submit-col {
+  grid-area: submit;
+  /* Replaces the margin-bottom the last .form-field used to provide
+     before the button, back when it was the button's preceding sibling
+     inside <form>. */
+  margin-top: 1rem;
 }
 .booking-modal_title {
   font-size: 1.5rem;
@@ -6264,11 +6293,21 @@ figcaption {
     padding: 2rem 1.5rem;
   }
   .booking-modal_grid {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    grid-template-areas: "form"
+      "calendar"
+      "submit";
     gap: 2rem;
   }
   .booking-modal_calendar-col {
     width: 100%;
+  }
+  .booking-modal_submit-col {
+    /* The 2rem grid gap above already provides spacing consistently
+       between all three stacked areas here; the desktop-only spacing
+       that stood in for the form's last-field margin isn't needed once
+       stacked. */
+    margin-top: 0;
   }
 }
 

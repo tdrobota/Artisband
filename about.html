@@ -396,10 +396,6 @@
               <input class="form-input" maxlength="256" name="venue" placeholder="Sala sau locul evenimentului" type="text" id="popup-venue" required>
             </div>
             <input type="hidden" name="eventDate" id="popup-event-date" required>
-            <button type="submit" class="submit-button form-submit">
-              <span>Trimite pe WhatsApp</span>
-              <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon">
-            </button>
           </form>
           <div class="w-form-done" role="alert" data-booking-done>
             <div>Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.</div>
@@ -422,6 +418,20 @@
             <div class="booking-calendar_days" data-cal-days></div>
             <div class="booking-calendar_selected" data-cal-selected>Alege o dată</div>
           </div>
+        </div>
+        <div class="booking-modal_submit-col">
+          <!-- Lives outside <form> so it can sit in its own grid area (see
+               .booking-modal_grid in site.css): on mobile the layout stacks
+               to a single column and this needs to render AFTER the
+               calendar, not after the last text field like it does on
+               desktop's 2-column layout. The form="popup-booking-form"
+               attribute keeps it a real submit button for that form
+               (native HTML, works regardless of DOM position) so booking-
+               about.js's existing submit handler doesn't need to change. -->
+          <button type="submit" class="submit-button form-submit" form="popup-booking-form">
+            <span>Trimite pe WhatsApp</span>
+            <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon">
+          </button>
         </div>
       </div>
     </div>
