@@ -2035,9 +2035,29 @@ figcaption {
      content width (the form's max-width: 40em caps it well short of the
      full column width on wide screens), so flex-start left it flush
      against the left padding with a large, clearly unused gap of empty
-     white space on the right. Centering each child horizontally within
-     the available width reads as an intentional, balanced layout instead. */
+     white space on the right. align-items: center fixes that -- but only
+     works correctly together with .cta_inner below, see that comment. */
   align-items: center;
+  display: flex;
+}
+
+/* Wraps cta_head + cta_button-wrap + form-wrap (see index.html). Centering
+   them individually (setting align-items: center directly on .cta_content,
+   with no wrapper) centered each one at its OWN natural width -- and since
+   the heading block, the paragraph and the form are all different widths,
+   that gave each one a different left edge, an inconsistent, "jagged"
+   look flagged after the first centering pass. This wrapper is a column
+   flex container with no width of its own, so it shrink-to-fits to
+   whichever child needs the most room (almost always the form); its
+   children then default to stretching to fill that shared width (the
+   flex default, align-items: stretch), so the heading/paragraph/form all
+   get the exact same left AND right edge. .cta_content then centers this
+   one wrapper as a single unit, instead of centering three independently
+   sized boxes. */
+.cta_inner {
+  flex-flow: column;
+  width: auto;
+  max-width: 100%;
   display: flex;
 }
 
