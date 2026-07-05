@@ -4479,13 +4479,18 @@ figcaption {
     padding: var(--fixed--3rem);
     /* Round only the bottom corners, pairs with .cta_graphic-wrap above. */
     border-radius: 0 0 var(--border-radius--ultra) var(--border-radius--ultra);
-    /* Keep the original left-aligned layout on the stacked (mobile/tablet)
-       version: the align-items: center added above is specifically for the
-       wide side-by-side layout, where the form's max-width left a large gap
-       of unused white space next to it. Stacked full-width columns don't
-       have that problem (the form already spans the available width), and
-       left-aligned reads more naturally for a single narrow column. */
-    align-items: flex-start;
+    /* Used to force align-items: flex-start back here, on the assumption
+       that the stacked (mobile/tablet) layout is always narrow enough that
+       the form already fills the full width, making flex-start vs. center
+       look identical. True in narrow portrait, but this breakpoint also
+       covers landscape phones/tablets up to 991px wide, where the viewport
+       can easily be wider than the form's natural content width -- same
+       excess-whitespace-on-the-right bug as the desktop one this was
+       meant to avoid, just re-triggered in landscape. Removed: inherits
+       align-items: center (with .cta_inner) from the base rule above at
+       every width now, which renders identically to flex-start whenever
+       there's no extra width to redistribute anyway (i.e. real narrow
+       portrait phones), so nothing is lost there. */
   }
 
   .cta_head {
