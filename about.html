@@ -129,8 +129,16 @@
                 </div>
                 <div class="approach_item">
                   <div class="approach_img-wrap">
-                    <div data-poster-url="videos/ab-video_poster.0000000.jpg" data-video-urls="videos/ab-video_mp4.mp4" data-autoplay="true" data-loop="true" data-wf-ignore="true" animation="scale" class="approach_img w-background-video w-background-video-atom"><video id="f5f348c0-ceea-69d6-a16d-d329b9c68348-video" autoplay="" loop="" style="background-image:url(&quot;videos/ab-video_poster.0000000.jpg&quot;)" muted="" playsinline="" data-wf-ignore="true" data-object-fit="cover">
-                        <source src="videos/ab-video_mp4.mp4" data-wf-ignore="true">
+                    <!--
+                      Same swap as the home page CTA video (2026-07): this
+                      used to point at the original 4:48, ~22MB source
+                      clip, downloaded in full just for this small looping
+                      thumbnail. Reuses the same trimmed 15s/3.2MB clip
+                      already made for the CTA section -- same source
+                      footage, no new encoding needed for this spot.
+                    -->
+                    <div data-poster-url="videos/ab-video-trimmed-poster.jpg" data-video-urls="videos/ab-video-trimmed.mp4" data-autoplay="true" data-loop="true" data-wf-ignore="true" animation="scale" class="approach_img w-background-video w-background-video-atom"><video id="f5f348c0-ceea-69d6-a16d-d329b9c68348-video" autoplay="" loop="" style="background-image:url(&quot;videos/ab-video-trimmed-poster.jpg&quot;)" muted="" playsinline="" data-wf-ignore="true" data-object-fit="cover">
+                        <source src="videos/ab-video-trimmed.mp4" data-wf-ignore="true">
                       </video></div>
                   </div>
                   <div class="approach_item-content">

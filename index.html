@@ -66,7 +66,19 @@
           <div class="home-about_sticky">
             <div class="home-about_component">
               <h2 class="home-about_heading _1">Noi suntem</h2>
-              <div class="home-about_img-wrap"><img src="images/header-img-s.jpg" width="960" sizes="(max-width: 991px) 100vw, 960px" alt="" srcset="images/header-img-s-p-500.jpg 500w, images/header-img-s-p-800.jpg 800w, images/header-img-s.jpg 1080w" class="image-2"><img src="images/header-img6.jpg" width="960" sizes="(max-width: 991px) 100vw, 960px" alt="" srcset="images/header-img6-p-500.jpg 500w, images/header-img6-p-800.jpg 800w, images/header-img6-p-1080.jpg 1080w, images/header-img6-p-1600.jpg 1600w, images/header-img6-p-2000.jpg 2000w, images/header-img6-p-2600.jpg 2600w, images/header-img6-p-3200.jpg 3200w, images/header-img6.jpg 3840w" class="home-about_img">
+              <!--
+                sizes was "(max-width: 991px) 100vw, 960px" -- a leftover
+                from before the scroll-linked grow animation was added.
+                .home-about_img is CSS-forced to width: 100vw / height:
+                100vh at EVERY screen size (see site.css), not capped to
+                960px on desktop -- so that old value told browsers this
+                only ever needed 960px, causing them to pick a far smaller
+                srcset candidate than actually needed on wide/high-DPI
+                desktop screens, visibly blurry once the grow animation
+                reaches its full-viewport size. Just "100vw" now, matching
+                what this image actually renders at everywhere.
+              -->
+              <div class="home-about_img-wrap"><img src="images/header-img-s.jpg" width="960" sizes="100vw" alt="" srcset="images/header-img-s-p-500.jpg 500w, images/header-img-s-p-800.jpg 800w, images/header-img-s.jpg 1080w" class="image-2"><img src="images/header-img6.jpg" width="960" sizes="100vw" alt="" srcset="images/header-img6-p-500.jpg 500w, images/header-img6-p-800.jpg 800w, images/header-img6-p-1080.jpg 1080w, images/header-img6-p-1600.jpg 1600w, images/header-img6-p-2000.jpg 2000w, images/header-img6-p-2600.jpg 2600w, images/header-img6-p-3200.jpg 3200w, images/header-img6.jpg 3840w" class="home-about_img">
                 <h2 class="home-about_img-text">Nu doar o trupă de coveruri</h2>
               </div>
               <h2 class="home-about_heading _2">Artis Band</h2>
@@ -325,8 +337,21 @@
           <div class="container-medium">
             <div class="cta_component">
               <div class="cta_graphic-wrap">
-                <div data-poster-url="videos/ab-video_poster.0000000.jpg" data-video-urls="videos/ab-video_mp4.mp4" data-autoplay="true" data-loop="true" data-wf-ignore="true" class="cta_graphic w-background-video w-background-video-atom"><video id="eb528ada-41c3-d51b-6c40-f1574b5466ef-video" autoplay="" loop="" style="background-image:url(&quot;videos/ab-video_poster.0000000.jpg&quot;)" muted="" playsinline="" data-wf-ignore="true" data-object-fit="cover">
-                    <source src="videos/ab-video_mp4.mp4" data-wf-ignore="true">
+                <!--
+                  Swapped to a trimmed, re-encoded clip (2026-07): the
+                  original ab-video_mp4.mp4 was a 4:48-long source video,
+                  compressed down to ~22MB, autoplaying and downloading in
+                  full for every visitor -- the single biggest contributor
+                  to slow loads on mobile/cellular. ab-video-trimmed.mp4 is
+                  a 15-second loop cut from the same source (CRF 19, same
+                  1280px width, so no visible quality loss) at ~3.2MB, about
+                  85% smaller. Poster regenerated from this clip's own
+                  first frame (ab-video-trimmed-poster.jpg) so there's no
+                  mismatched flash between the poster and the video's
+                  actual starting frame.
+                -->
+                <div data-poster-url="videos/ab-video-trimmed-poster.jpg" data-video-urls="videos/ab-video-trimmed.mp4" data-autoplay="true" data-loop="true" data-wf-ignore="true" class="cta_graphic w-background-video w-background-video-atom"><video id="eb528ada-41c3-d51b-6c40-f1574b5466ef-video" autoplay="" loop="" style="background-image:url(&quot;videos/ab-video-trimmed-poster.jpg&quot;)" muted="" playsinline="" data-wf-ignore="true" data-object-fit="cover">
+                    <source src="videos/ab-video-trimmed.mp4" data-wf-ignore="true">
                   </video></div>
               </div>
               <div class="cta_content">
