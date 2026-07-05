@@ -2061,6 +2061,17 @@ figcaption {
   display: flex;
 }
 
+/* Only the gap between the paragraph and the form needed restoring (see
+   .cta_inner above for why it collapsed to 0) -- a uniform row-gap on
+   .cta_inner also added this same 3rem between the heading and the
+   paragraph right under it, which reads as too much space where there
+   never used to be any. Scoping the gap to just this one spot with a
+   margin instead of a blanket row-gap keeps the heading and paragraph
+   close together while still giving the form its breathing room. */
+.form-wrap {
+  margin-top: var(--fixed--3rem);
+}
+
 .cta_button-wrap {
   grid-column-gap: var(--fixed--1-75rem);
   grid-row-gap: var(--fixed--1-75rem);
