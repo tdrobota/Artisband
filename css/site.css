@@ -3799,7 +3799,12 @@ figcaption {
   display: flex;
   position: absolute;
   left: 50%;
-  bottom: var(--fixed--2rem);
+  /* Was --fixed--2rem (32px): sat right at the very bottom edge of the
+     viewport, close enough to the WhatsApp floating button and the
+     screen edge itself that it read as "way too far down" rather than a
+     comfortable scroll-down cue. This only moves this one absolutely-
+     positioned element -- nothing else in the pinned section is affected. */
+  bottom: var(--fixed--6rem);
   transform: translateX(-50%);
   z-index: 2;
 }
