@@ -34,7 +34,7 @@
     <nav data-wf--navbar--variant="light-pages" class="navbar is-light w-variant-1f88e9d2-2126-c26f-cddb-9e4109331a60">
       <div class="padding-global">
         <div class="navbar_component">
-          <a href="index.html" class="navbar_logo-wrap w-inline-block"><img src="images/logo-white.svg" loading="lazy" alt="" class="navbar_logo_white w-variant-1f88e9d2-2126-c26f-cddb-9e4109331a60"><img src="images/logo-bk.png" loading="lazy" alt="" class="navbar_logo_black w-variant-1f88e9d2-2126-c26f-cddb-9e4109331a60"></a>
+          <a href="index.html" class="navbar_logo-wrap w-inline-block"><img src="images/logo-white.svg" alt="" class="navbar_logo_white w-variant-1f88e9d2-2126-c26f-cddb-9e4109331a60"><img src="images/logo-bk.png" alt="" class="navbar_logo_black w-variant-1f88e9d2-2126-c26f-cddb-9e4109331a60"></a>
           <div class="navbar_links-wrap">
             <div class="navbar_links">
               <a href="index.html" class="navbar_link w-inline-block">
@@ -210,39 +210,48 @@
               version via .about-values_content/.about-values_imgs-wrapper.
             -->
             <div class="about-values_marquee">
+              <!--
+                loading="lazy" removed from every image in this track
+                (2026-07): same fix as the Momente Live marquee on the home
+                page -- this scrolls continuously via a pure CSS transform
+                animation, and Safari/WebKit's native lazy-load intersection
+                detection is unreliable inside a continuously-transformed
+                container, sometimes never marking these as "near viewport"
+                at all. Only 3 unique images here, cheap to load eagerly.
+              -->
               <div class="about-values_marquee_track">
                 <div class="about-values_marquee_item">
-                  <div class="about-values_marquee_img-wrap"><img src="images/profesionalism.jpg" alt="" loading="lazy" class="about-values_marquee_img"></div>
+                  <div class="about-values_marquee_img-wrap"><img src="images/profesionalism.jpg" alt="" class="about-values_marquee_img"></div>
                   <div class="text-style-label">01</div>
                   <h3 class="heading-style-h6">Profesionalism</h3>
                   <p>Organizare și comunicare clară</p>
                 </div>
                 <div class="about-values_marquee_item">
-                  <div class="about-values_marquee_img-wrap"><img src="images/repertoriu.jpg" alt="" loading="lazy" class="about-values_marquee_img"></div>
+                  <div class="about-values_marquee_img-wrap"><img src="images/repertoriu.jpg" alt="" class="about-values_marquee_img"></div>
                   <div class="text-style-label">02</div>
                   <h3 class="heading-style-h6">Repertoriu variat</h3>
                   <p>Pentru toate vârstele și momentele serii</p>
                 </div>
                 <div class="about-values_marquee_item">
-                  <div class="about-values_marquee_img-wrap"><img src="images/481287290_957119199878210_4238705629776462591_n.jpg" alt="" loading="lazy" class="about-values_marquee_img"></div>
+                  <div class="about-values_marquee_img-wrap"><img src="images/481287290_957119199878210_4238705629776462591_n.jpg" alt="" class="about-values_marquee_img"></div>
                   <div class="text-style-label">03</div>
                   <h3 class="heading-style-h6">Energie live</h3>
                   <p>Interacțiune și atmosferă reală</p>
                 </div>
                 <div class="about-values_marquee_item" aria-hidden="true">
-                  <div class="about-values_marquee_img-wrap"><img src="images/profesionalism.jpg" alt="" loading="lazy" class="about-values_marquee_img"></div>
+                  <div class="about-values_marquee_img-wrap"><img src="images/profesionalism.jpg" alt="" class="about-values_marquee_img"></div>
                   <div class="text-style-label">01</div>
                   <h3 class="heading-style-h6">Profesionalism</h3>
                   <p>Organizare și comunicare clară</p>
                 </div>
                 <div class="about-values_marquee_item" aria-hidden="true">
-                  <div class="about-values_marquee_img-wrap"><img src="images/repertoriu.jpg" alt="" loading="lazy" class="about-values_marquee_img"></div>
+                  <div class="about-values_marquee_img-wrap"><img src="images/repertoriu.jpg" alt="" class="about-values_marquee_img"></div>
                   <div class="text-style-label">02</div>
                   <h3 class="heading-style-h6">Repertoriu variat</h3>
                   <p>Pentru toate vârstele și momentele serii</p>
                 </div>
                 <div class="about-values_marquee_item" aria-hidden="true">
-                  <div class="about-values_marquee_img-wrap"><img src="images/481287290_957119199878210_4238705629776462591_n.jpg" alt="" loading="lazy" class="about-values_marquee_img"></div>
+                  <div class="about-values_marquee_img-wrap"><img src="images/481287290_957119199878210_4238705629776462591_n.jpg" alt="" class="about-values_marquee_img"></div>
                   <div class="text-style-label">03</div>
                   <h3 class="heading-style-h6">Energie live</h3>
                   <p>Interacțiune și atmosferă reală</p>

@@ -1228,6 +1228,47 @@ Current working-tree size after this swap: roughly 51MB (excluding `.git`), down
 
 ---
 
+## Images not loading on Safari/iPhone (fixed 2026-07)
+
+Client reported images loading very slowly and some appearing broken specifically on
+an iPhone 14 Pro (Safari). Testing this directly wasn't possible from here (no real
+iOS device or Safari engine available in this environment — Chrome device emulation
+only changes viewport size, not the actual rendering engine, so it can't reproduce a
+genuine WebKit bug), but the code review turned up a real, concrete cause worth fixing
+regardless: `loading="lazy"` (Webflow's export default, applied blanket to nearly every
+`<img>`) was left on several images where it actively works against the page:
+
+- **The nav logo, on all three pages.** It's the very first thing on every page —
+  there's never a reason to lazy-load it, and doing so just adds an unnecessary delay
+  before it's fetched.
+- **The home page hero images** (`header-img-s.jpg` / `header-img6.jpg`, the "Noi
+  suntem ... Artis Band" pinned scroll hero) — also always visible immediately on
+  page load, same issue.
+- **Both continuously-scrolling CSS marquee galleries** — Momente Live on the home
+  page, and the values marquee on Despre Noi. Both scroll via a pure CSS `transform`
+  animation that never stops (see `.gallery-marquee_track` / `.about-values_marquee_track`
+  in site.css). This is the one most likely to actually explain "images broken" rather
+  than just "slow": Safari's native lazy-load relies on IntersectionObserver-style
+  viewport detection, and that detection is known to be unreliable for elements inside
+  a continuously-transformed ancestor — WebKit can simply never flag them as "near
+  viewport," so the image request never fires at all, leaving a permanently blank box.
+  Chromium doesn't reliably reproduce this (confirmed only 8/3 unique images each,
+  cheap either way), so it wasn't independently verified against real Safari, but it's
+  a well-established category of WebKit bug and a very plausible match for what was
+  described.
+
+**Fix:** removed `loading="lazy"` from all of the above (in `index.html` and
+`about.html`). Left it in place everywhere else it's safe and actually useful — team
+photos, the services grid, YouTube thumbnails on Portofoliu — none of those sit inside
+a continuously-animated container, so native lazy-loading works normally there and is
+worth keeping for initial page-load performance.
+
+**If images are still reported as broken on Safari after this ships:** ask for a
+screenshot with Safari's own dev tools open (Settings → Safari → Advanced → Web
+Inspector on the iPhone, then inspect via a Mac connected over USB) to see the actual
+failed request/console error — that's the fastest way to get a real WebKit-side answer
+instead of guessing further from here.
+
 ## Still open / needs a decision from the client (not blocking, but flag it)
 
 - Blocking already-booked dates in the date picker, deprioritized to a follow-up

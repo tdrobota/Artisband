@@ -33,7 +33,7 @@
   <nav data-wf--navbar--variant="base" class="navbar is-light">
     <div class="padding-global">
       <div class="navbar_component">
-        <a href="index.html" aria-current="page" class="navbar_logo-wrap w-inline-block w--current"><img src="images/logo-white.svg" loading="lazy" alt="" class="navbar_logo_white"><img src="images/logo-bk.png" loading="lazy" alt="" class="navbar_logo_black"></a>
+        <a href="index.html" aria-current="page" class="navbar_logo-wrap w-inline-block w--current"><img src="images/logo-white.svg" alt="" class="navbar_logo_white"><img src="images/logo-bk.png" alt="" class="navbar_logo_black"></a>
         <div class="navbar_links-wrap">
           <div class="navbar_links">
             <a href="index.html" aria-current="page" class="navbar_link w-inline-block w--current">
@@ -66,7 +66,7 @@
           <div class="home-about_sticky">
             <div class="home-about_component">
               <h2 class="home-about_heading _1">Noi suntem</h2>
-              <div class="home-about_img-wrap"><img src="images/header-img-s.jpg" loading="lazy" width="960" sizes="(max-width: 991px) 100vw, 960px" alt="" srcset="images/header-img-s-p-500.jpg 500w, images/header-img-s-p-800.jpg 800w, images/header-img-s.jpg 1080w" class="image-2"><img src="images/header-img6.jpg" loading="lazy" width="960" sizes="(max-width: 991px) 100vw, 960px" alt="" srcset="images/header-img6-p-500.jpg 500w, images/header-img6-p-800.jpg 800w, images/header-img6-p-1080.jpg 1080w, images/header-img6-p-1600.jpg 1600w, images/header-img6-p-2000.jpg 2000w, images/header-img6-p-2600.jpg 2600w, images/header-img6-p-3200.jpg 3200w, images/header-img6.jpg 3840w" class="home-about_img">
+              <div class="home-about_img-wrap"><img src="images/header-img-s.jpg" width="960" sizes="(max-width: 991px) 100vw, 960px" alt="" srcset="images/header-img-s-p-500.jpg 500w, images/header-img-s-p-800.jpg 800w, images/header-img-s.jpg 1080w" class="image-2"><img src="images/header-img6.jpg" width="960" sizes="(max-width: 991px) 100vw, 960px" alt="" srcset="images/header-img6-p-500.jpg 500w, images/header-img6-p-800.jpg 800w, images/header-img6-p-1080.jpg 1080w, images/header-img6-p-1600.jpg 1600w, images/header-img6-p-2000.jpg 2000w, images/header-img6-p-2600.jpg 2600w, images/header-img6-p-3200.jpg 3200w, images/header-img6.jpg 3840w" class="home-about_img">
                 <h2 class="home-about_img-text">Nu doar o trupă de coveruri</h2>
               </div>
               <h2 class="home-about_heading _2">Artis Band</h2>
@@ -290,15 +290,25 @@
                   animation in site.css).
                 -->
                 <div class="gallery-marquee">
+                  <!--
+                    loading="lazy" removed from every image in this track (2026-07):
+                    this marquee scrolls continuously via a pure CSS transform
+                    animation (see .gallery-marquee_track in site.css), and
+                    WebKit/Safari's native lazy-load intersection detection is
+                    unreliable for images inside a continuously-transformed
+                    container -- they can end up never marked "near viewport"
+                    and simply never load. There are only 8 small (340px)
+                    images here, so eager-loading all of them is cheap.
+                  -->
                   <div class="gallery-marquee_track">
-                    <div class="gallery-marquee_item"><img sizes="340px" src="images/68785894_2292185044237486_5690347590026002432_n.jpg" loading="lazy" alt="" srcset="images/68785894_2292185044237486_5690347590026002432_n-p-500.jpg 500w, images/68785894_2292185044237486_5690347590026002432_n-p-800.jpg 800w" class="gallery-image"></div>
-                    <div class="gallery-marquee_item"><img sizes="340px" src="images/485418889_9225040254285229_2877629271048540718_n.jpg" loading="lazy" alt="" srcset="images/485418889_9225040254285229_2877629271048540718_n-p-500.jpg 500w, images/485418889_9225040254285229_2877629271048540718_n-p-800.jpg 800w" class="gallery-image"></div>
-                    <div class="gallery-marquee_item"><img sizes="340px" src="images/649230069_18349564756236226_49583131164804747_n.jpg" loading="lazy" alt="" srcset="images/649230069_18349564756236226_49583131164804747_n-p-500.jpg 500w, images/649230069_18349564756236226_49583131164804747_n-p-800.jpg 800w" class="gallery-image"></div>
-                    <div class="gallery-marquee_item"><img sizes="340px" src="images/649073327_18349564804236226_1244148594410605352_n.jpg" loading="lazy" alt="" srcset="images/649073327_18349564804236226_1244148594410605352_n-p-500.jpg 500w, images/649073327_18349564804236226_1244148594410605352_n-p-800.jpg 800w" class="gallery-image"></div>
-                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/68785894_2292185044237486_5690347590026002432_n.jpg" loading="lazy" alt="" srcset="images/68785894_2292185044237486_5690347590026002432_n-p-500.jpg 500w, images/68785894_2292185044237486_5690347590026002432_n-p-800.jpg 800w" class="gallery-image"></div>
-                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/485418889_9225040254285229_2877629271048540718_n.jpg" loading="lazy" alt="" srcset="images/485418889_9225040254285229_2877629271048540718_n-p-500.jpg 500w, images/485418889_9225040254285229_2877629271048540718_n-p-800.jpg 800w" class="gallery-image"></div>
-                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/649230069_18349564756236226_49583131164804747_n.jpg" loading="lazy" alt="" srcset="images/649230069_18349564756236226_49583131164804747_n-p-500.jpg 500w, images/649230069_18349564756236226_49583131164804747_n-p-800.jpg 800w" class="gallery-image"></div>
-                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/649073327_18349564804236226_1244148594410605352_n.jpg" loading="lazy" alt="" srcset="images/649073327_18349564804236226_1244148594410605352_n-p-500.jpg 500w, images/649073327_18349564804236226_1244148594410605352_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/68785894_2292185044237486_5690347590026002432_n.jpg" alt="" srcset="images/68785894_2292185044237486_5690347590026002432_n-p-500.jpg 500w, images/68785894_2292185044237486_5690347590026002432_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/485418889_9225040254285229_2877629271048540718_n.jpg" alt="" srcset="images/485418889_9225040254285229_2877629271048540718_n-p-500.jpg 500w, images/485418889_9225040254285229_2877629271048540718_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/649230069_18349564756236226_49583131164804747_n.jpg" alt="" srcset="images/649230069_18349564756236226_49583131164804747_n-p-500.jpg 500w, images/649230069_18349564756236226_49583131164804747_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item"><img sizes="340px" src="images/649073327_18349564804236226_1244148594410605352_n.jpg" alt="" srcset="images/649073327_18349564804236226_1244148594410605352_n-p-500.jpg 500w, images/649073327_18349564804236226_1244148594410605352_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/68785894_2292185044237486_5690347590026002432_n.jpg" alt="" srcset="images/68785894_2292185044237486_5690347590026002432_n-p-500.jpg 500w, images/68785894_2292185044237486_5690347590026002432_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/485418889_9225040254285229_2877629271048540718_n.jpg" alt="" srcset="images/485418889_9225040254285229_2877629271048540718_n-p-500.jpg 500w, images/485418889_9225040254285229_2877629271048540718_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/649230069_18349564756236226_49583131164804747_n.jpg" alt="" srcset="images/649230069_18349564756236226_49583131164804747_n-p-500.jpg 500w, images/649230069_18349564756236226_49583131164804747_n-p-800.jpg 800w" class="gallery-image"></div>
+                    <div class="gallery-marquee_item" aria-hidden="true"><img sizes="340px" src="images/649073327_18349564804236226_1244148594410605352_n.jpg" alt="" srcset="images/649073327_18349564804236226_1244148594410605352_n-p-500.jpg 500w, images/649073327_18349564804236226_1244148594410605352_n-p-800.jpg 800w" class="gallery-image"></div>
                   </div>
                 </div>
               </div>

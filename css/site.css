@@ -2031,7 +2031,13 @@ figcaption {
      space-between left a large empty gap under the submit button instead of
      balancing the extra height evenly. */
   justify-content: center;
-  align-items: flex-start;
+  /* Was flex-start: the form/heading/text block only ever grows to its own
+     content width (the form's max-width: 40em caps it well short of the
+     full column width on wide screens), so flex-start left it flush
+     against the left padding with a large, clearly unused gap of empty
+     white space on the right. Centering each child horizontally within
+     the available width reads as an intentional, balanced layout instead. */
+  align-items: center;
   display: flex;
 }
 
@@ -4437,6 +4443,13 @@ figcaption {
     padding: var(--fixed--3rem);
     /* Round only the bottom corners, pairs with .cta_graphic-wrap above. */
     border-radius: 0 0 var(--border-radius--ultra) var(--border-radius--ultra);
+    /* Keep the original left-aligned layout on the stacked (mobile/tablet)
+       version: the align-items: center added above is specifically for the
+       wide side-by-side layout, where the form's max-width left a large gap
+       of unused white space next to it. Stacked full-width columns don't
+       have that problem (the form already spans the available width), and
+       left-aligned reads more naturally for a single narrow column. */
+    align-items: flex-start;
   }
 
   .cta_head {
@@ -6074,9 +6087,13 @@ figcaption {
    on phones too. */
 .form-note {
   color: var(--_colors---primary--grey, #666);
-  margin-top: -.4rem;
+  /* Was -.4rem: that pulled this text up flush against the submit button
+     right above it (zero gap, read as overlapping) instead of leaving it
+     room to breathe underneath. */
+  margin-top: .85rem;
   margin-bottom: 1rem;
   font-size: .85rem;
+  text-align: center;
 }
 .form-note a {
   color: inherit;
