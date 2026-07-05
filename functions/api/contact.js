@@ -115,7 +115,12 @@ export async function onRequestPost(context) {
     if (!resendResponse.ok) {
       const errorBody = await resendResponse.text().catch(function () { return ''; });
       console.error('[api/contact] Resend request failed', resendResponse.status, errorBody);
-      return jsonResponse({ ok: false, error: 'send_failed' }, 502);
+      // TEMPORARY: surfaces Resend's actual rejection reason in the
+      // response while diagnosing the initial setup (status/body Resend
+      // itself returned). Remove resend_status/resend_body once sending
+      // is confirmed working end-to-end -- not something a real visitor
+      // needs to see.
+      return jsonResponse({ ok: false, error: 'send_failed', resend_status: resendResponse.status, resend_body: errorBody }, 502);
     }
 
     return jsonResponse({ ok: true });

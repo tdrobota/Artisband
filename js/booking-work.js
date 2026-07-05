@@ -55,7 +55,15 @@
       submitLabel: 'Trimite pe Email',
       submitIcon: 'images/email-icon-dark.svg',
       done: 'Mulțumim! Cererea a fost trimisă pe email, revenim cât mai curând cu disponibilitatea.',
-      fail: 'Te rugăm să completezi toate câmpurile, inclusiv adresa ta de email.'
+      fail: 'Te rugăm să completezi toate câmpurile, inclusiv adresa ta de email.',
+      // Distinct from `fail` above on purpose: `fail` is shown when the
+      // form itself is incomplete/invalid (client-side, before any
+      // request is sent). This one is shown when everything the visitor
+      // typed was valid but the actual send attempt failed server-side
+      // (e.g. RESEND_API_KEY not configured yet, or a network hiccup) --
+      // reusing the "please fill in your fields" copy for that case was
+      // confusing a visitor who'd already filled everything in correctly.
+      sendFail: 'Nu am putut trimite emailul acum. Încearcă din nou sau scrie-ne pe WhatsApp.'
     }
   };
 
@@ -123,6 +131,10 @@
         if (doneMsg) doneMsg.style.display = 'block';
       }).catch(function (err) {
         console.error('[artis:contact-email]', err);
+        // Server/network failure, not a validation one -- swap in the
+        // send-specific copy so the message matches what actually went
+        // wrong (see the `sendFail` comment on METHOD_COPY.email above).
+        if (failText) failText.textContent = METHOD_COPY.email.sendFail;
         if (failMsg) failMsg.style.display = 'block';
       }).finally(function () {
         if (submitButton) submitButton.disabled = false;
@@ -134,11 +146,18 @@
       if (doneMsg) doneMsg.style.display = 'none';
       if (failMsg) failMsg.style.display = 'none';
 
+      var copy = METHOD_COPY[currentMethod()] || METHOD_COPY.whatsapp;
+
       // Native validation (required/type="email") also covers the
       // conditionally-required email field above, since applyMethod()
       // toggles its required attribute to match the selected method.
       if (!form.checkValidity()) {
         form.reportValidity();
+        // Explicit, rather than relying on whatever applyMethod() last
+        // set failText to -- guarantees this is the validation-failure
+        // copy even if submitViaEmail's sendFail message was the last
+        // thing shown here.
+        if (failText) failText.textContent = copy.fail;
         if (failMsg) failMsg.style.display = 'block';
         return;
       }
