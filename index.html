@@ -331,7 +331,30 @@
                   <p class="cta_text">Spune-ne data, orașul și tipul evenimentului, iar noi revenim cu disponibilitatea.</p>
                 </div>
                 <div class="form-wrap">
-                  <form id="booking-form" name="booking-form" data-name="Booking Form" class="form" data-wf-page-id="69a92ef0a0b9d30a3a338b52" data-wf-element-id="04a1b8a8-cf81-f031-5ad8-8cc57f77b530">
+                  <form id="booking-form" name="booking-form" data-name="Booking Form" class="form" data-wf-page-id="69a92ef0a0b9d30a3a338b52" data-wf-element-id="04a1b8a8-cf81-f031-5ad8-8cc57f77b530" data-booking-form>
+                    <!--
+                      Desktop-only (see .contact-method-toggle in site.css,
+                      hidden below 992px): WhatsApp is by far the fastest,
+                      most convenient channel on a phone, but on a laptop it
+                      means the visitor has to be logged into WhatsApp Web
+                      first, which is friction email doesn't have. Hidden
+                      entirely on mobile, where this radio just stays on its
+                      default ("whatsapp") value and the form behaves exactly
+                      as before. See booking-index.js for the submit-button
+                      label swap and the email-vs-WhatsApp submit branch.
+                    -->
+                    <div class="contact-method-toggle" role="radiogroup" aria-label="Metoda de contact" data-contact-method-toggle>
+                      <input class="contact-method-input" type="radio" id="cta-contact-method-whatsapp" name="contactMethod" value="whatsapp" checked>
+                      <label class="contact-method-btn" for="cta-contact-method-whatsapp">
+                        <img src="images/whatsapp-icon-dark.svg" alt="" class="contact-method-icon">
+                        <span>WhatsApp</span>
+                      </label>
+                      <input class="contact-method-input" type="radio" id="cta-contact-method-email" name="contactMethod" value="email">
+                      <label class="contact-method-btn" for="cta-contact-method-email">
+                        <img src="images/email-icon-dark.svg" alt="" class="contact-method-icon">
+                        <span>Email</span>
+                      </label>
+                    </div>
                     <div class="form-field">
                       <label class="form-label" for="name">Nume complet</label>
                       <input class="form-input" maxlength="256" name="name" data-name="Name" placeholder="Cum te numești?" type="text" id="name">
@@ -361,16 +384,20 @@
                       <label class="form-label" for="venue">Locația</label>
                       <input class="form-input" maxlength="256" name="venue" data-name="Locatia" placeholder="Sala sau locul evenimentului" type="text" id="venue" required>
                     </div>
-                    <button type="submit" class="submit-button form-submit">
-                      <span>Trimite pe WhatsApp</span>
-                      <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon">
+                    <div class="form-field" data-contact-email-field hidden>
+                      <label class="form-label" for="cta-sender-email">Email-ul tău</label>
+                      <input class="form-input" maxlength="256" name="senderEmail" placeholder="nume@exemplu.com" type="email" id="cta-sender-email">
+                    </div>
+                    <button type="submit" class="submit-button form-submit" data-submit-button>
+                      <span data-submit-text>Trimite pe WhatsApp</span>
+                      <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon" data-submit-icon>
                     </button>
                   </form>
-                  <div class="w-form-done" role="alert">
-                    <div>Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.</div>
+                  <div class="w-form-done" role="alert" data-booking-done>
+                    <div data-booking-done-text>Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.</div>
                   </div>
-                  <div class="w-form-fail" role="alert">
-                    <div>Te rugăm să completezi toate câmpurile și să alegi tipul evenimentului.</div>
+                  <div class="w-form-fail" role="alert" data-booking-fail>
+                    <div data-booking-fail-text>Te rugăm să completezi toate câmpurile și să alegi tipul evenimentului.</div>
                   </div>
                 </div>
               </div>
@@ -431,6 +458,20 @@
           <h3 id="booking-modal-title" class="booking-modal_title">Rezervă Artis Band</h3>
           <p class="booking-modal_subtitle">Completează detaliile, iar noi revenim cu disponibilitatea pe WhatsApp.</p>
           <form id="popup-booking-form" class="form" data-booking-form>
+            <!-- Desktop-only toggle, see the matching one + comment on the
+                 main contact form (.section_cta in this file) for why. -->
+            <div class="contact-method-toggle" role="radiogroup" aria-label="Metoda de contact" data-contact-method-toggle>
+              <input class="contact-method-input" type="radio" id="popup-contact-method-whatsapp" name="contactMethod" value="whatsapp" checked>
+              <label class="contact-method-btn" for="popup-contact-method-whatsapp">
+                <img src="images/whatsapp-icon-dark.svg" alt="" class="contact-method-icon">
+                <span>WhatsApp</span>
+              </label>
+              <input class="contact-method-input" type="radio" id="popup-contact-method-email" name="contactMethod" value="email">
+              <label class="contact-method-btn" for="popup-contact-method-email">
+                <img src="images/email-icon-dark.svg" alt="" class="contact-method-icon">
+                <span>Email</span>
+              </label>
+            </div>
             <div class="form-field">
               <label class="form-label" for="popup-name">Nume complet</label>
               <input class="form-input" maxlength="256" name="name" placeholder="Cum te numești?" type="text" id="popup-name">
@@ -454,13 +495,17 @@
               <label class="form-label" for="popup-venue">Locația</label>
               <input class="form-input" maxlength="256" name="venue" placeholder="Sala sau locul evenimentului" type="text" id="popup-venue" required>
             </div>
+            <div class="form-field" data-contact-email-field hidden>
+              <label class="form-label" for="popup-sender-email">Email-ul tău</label>
+              <input class="form-input" maxlength="256" name="senderEmail" placeholder="nume@exemplu.com" type="email" id="popup-sender-email">
+            </div>
             <input type="hidden" name="eventDate" id="popup-event-date" required>
           </form>
           <div class="w-form-done" role="alert" data-booking-done>
-            <div>Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.</div>
+            <div data-booking-done-text>Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.</div>
           </div>
           <div class="w-form-fail" role="alert" data-booking-fail>
-            <div>Te rugăm să completezi toate câmpurile, tipul evenimentului și data.</div>
+            <div data-booking-fail-text>Te rugăm să completezi toate câmpurile, tipul evenimentului și data.</div>
           </div>
         </div>
         <div class="booking-modal_calendar-col">
@@ -487,9 +532,9 @@
                attribute keeps it a real submit button for that form
                (native HTML, works regardless of DOM position) so booking-
                index.js's existing submit handler doesn't need to change. -->
-          <button type="submit" class="submit-button form-submit" form="popup-booking-form">
-            <span>Trimite pe WhatsApp</span>
-            <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon">
+          <button type="submit" class="submit-button form-submit" form="popup-booking-form" data-submit-button>
+            <span data-submit-text>Trimite pe WhatsApp</span>
+            <img src="images/whatsapp-icon-dark.svg" alt="" class="form-submit-icon" data-submit-icon>
           </button>
         </div>
       </div>

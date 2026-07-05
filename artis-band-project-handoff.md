@@ -117,6 +117,11 @@ version entirely** — client decided WhatsApp is the right channel instead of e
 That whole backend (`functions/api/contact.js`, Turnstile widget, Resend integration)
 has been deleted; there is no server component anymore.
 
+*(Update, see "Hybrid contact method: WhatsApp + Email, desktop only" below: a much
+narrower Resend-based backend was reintroduced later, as a desktop-only Email option
+sitting ALONGSIDE WhatsApp rather than replacing it. WhatsApp itself, and everything
+below in this section, is still accurate and still the only option on phones.)
+
 **Form fields, final state (`name` attributes in parens):**
 - Nume complet (`name`) — text, optional, maxlength 256
 - Tipul evenimentului (`eventType`) — **no longer a dropdown.** Rendered as three pill
@@ -185,6 +190,62 @@ browser-default inputs). Redesigned to match the site's existing visual language
 
 None of this touched the actual submit behavior, the same JS handler and WhatsApp flow
 from before still apply unchanged.
+
+### Hybrid contact method: WhatsApp + Email, desktop only
+
+Client feedback after using the site on a laptop: WhatsApp-only is great on a phone
+(fast, no setup, exchanges phone numbers automatically) but awkward on a laptop, since
+it needs WhatsApp Web already linked to that device first. Added an Email option
+**alongside** WhatsApp — but only where it actually helps:
+
+- **Phones (below 992px): unchanged.** No toggle is shown at all, the form behaves
+  exactly as it did before this section — WhatsApp only, no backend involved.
+- **Laptops/desktops (992px and up):** a small WhatsApp/Email toggle
+  (`.contact-method-toggle`) appears above the form fields, on both the main contact
+  section form and the booking popup. Same accessible radio-button-styled-as-pills
+  pattern as the event-type selector (`.event-type-group`), just with an icon next to
+  each label. Selecting a method live-updates the submit button's label/icon and the
+  done/fail message copy (see `applyMethod()` in the booking-*.js files).
+- **A visitor email field appears only when Email is selected** (`data-contact-email-
+  field`, `hidden` by default, `required` toggled to match). The form never collected
+  an email or phone number before — WhatsApp doesn't need one (the visitor's identity
+  comes through automatically once they send the pre-filled message), but email
+  obviously does, there'd be no way to reply otherwise.
+
+**This DOES bring back a real backend, unlike the WhatsApp path** —
+`functions/api/contact.js`, a Cloudflare Pages Function, POSTs to
+[Resend](https://resend.com) to actually send the email. This is a smaller, narrower
+version of the email backend that was fully removed earlier in this project (see the
+section above) — same idea, but now it's an addition next to WhatsApp rather than a
+full replacement, and only reachable through the desktop-only Email toggle.
+
+**Manual setup required before the Email option will actually work (none of this can
+be done from inside the codebase):**
+1. Create a Resend account (or reuse the one from the earlier email version, if it
+   still exists).
+2. Verify a sending domain in Resend — e.g. `artisband.ro` itself, or a subdomain like
+   `mail.artisband.ro` — by adding the DNS records Resend provides. Required to send
+   FROM an `artisband.ro` address (`contact@artisband.ro`, currently hardcoded as both
+   the `from` and `to` address in `functions/api/contact.js` — the visitor's own
+   address is set as `reply_to` instead, so replying to the notification email goes
+   straight to them).
+3. Create a Resend API key.
+4. Cloudflare dashboard → Workers & Pages → this project → Settings → Environment
+   variables → add `RESEND_API_KEY` as a **Secret** (not plain text) for the
+   Production environment, then redeploy (or just wait for the next deploy).
+
+Until that's done, submitting via Email will show the fail message (the Function
+returns `email_not_configured` if `RESEND_API_KEY` isn't set) — WhatsApp is completely
+unaffected either way, they're fully independent code paths.
+
+**Deliberately NOT re-added:** Turnstile, honeypots, or rate limiting on the new
+endpoint. The project walked away from that complexity once already (see above) —
+starting the Email path simple on purpose, worth revisiting only if spam becomes an
+actual problem.
+
+**New assets:** `images/email-icon-dark.svg` / `images/email-icon.svg` (black/white
+envelope icon, matching the existing `whatsapp-icon-dark.svg` / `whatsapp-icon.svg`
+naming convention).
 
 ### Follow-up polish: single-card look and vertical centering
 

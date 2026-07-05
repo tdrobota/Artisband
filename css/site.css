@@ -5949,7 +5949,12 @@ figcaption {
      segments; text-align: center keeps each label centered within its
      now-wider pill. If "Alt eveniment" wraps to 2 lines on very narrow
      screens, the other two pills stretch to match its height too
-     (flex's default align-items: stretch), so the row still lines up. */
+     (flex's default align-items: stretch), so the row still lines up --
+     but that only works visually because THIS is display: flex too, with
+     align-items/justify-content: center: a plain display: inline-block
+     pill stays top-aligned inside its own now-taller box once a sibling
+     forces extra height, leaving "Nuntă"/"Botez" looking off-center with
+     empty space below the text instead of evenly balanced above/below it. */
   color: var(--_colors---primary--black);
   cursor: pointer;
   background-color: #fff;
@@ -5961,7 +5966,9 @@ figcaption {
   text-align: center;
   transition: background-color .15s, color .15s, border-color .15s;
   flex: 1;
-  display: inline-block;
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
 .event-type-input:checked + .event-type-btn {
   color: #fff;
@@ -5974,6 +5981,87 @@ figcaption {
 }
 .event-type-btn:hover {
   border-color: var(--_colors---primary--black);
+}
+
+/* WhatsApp/Email contact-method toggle: same accessible label-for pill
+   pattern as .event-type-group above, sitting at the top of the booking
+   forms (both the main contact section and the popup). WhatsApp is the
+   fastest option on a phone but needs WhatsApp Web linked on a laptop, so
+   this only shows on wide screens (see the min-width: 992px block below)
+   -- on mobile the "whatsapp" radio just stays on its default checked
+   state and the form behaves exactly as it always has. See
+   booking-index.js/-about.js/-work.js for the label/icon swap and the
+   email-vs-WhatsApp submit branch this drives. */
+.contact-method-toggle {
+  display: none;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+.contact-method-input {
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  position: absolute;
+  overflow: hidden;
+}
+.contact-method-btn {
+  color: var(--_colors---primary--black);
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #cccccc;
+  border-radius: var(--fixed--15rem, 999px);
+  padding: 10px 20px;
+  font-size: .9rem;
+  font-weight: 500;
+  justify-content: center;
+  align-items: center;
+  gap: .4rem;
+  display: flex;
+  flex: 1;
+  transition: background-color .15s, color .15s, border-color .15s;
+}
+.contact-method-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+.contact-method-input:checked + .contact-method-btn {
+  color: #fff;
+  background-color: var(--_colors---primary--black);
+  border-color: var(--_colors---primary--black);
+}
+.contact-method-input:checked + .contact-method-btn .contact-method-icon {
+  /* Icons are the dark (#000) variant so they read fine on the default
+     white pill; inverting to white here is cheaper than swapping to a
+     second (light) icon file just for the checked state. */
+  filter: invert(1);
+}
+.contact-method-input:focus-visible + .contact-method-btn {
+  outline: 2px solid var(--_colors---primary--black);
+  outline-offset: 2px;
+}
+.contact-method-btn:hover {
+  border-color: var(--_colors---primary--black);
+}
+@media screen and (min-width: 992px) {
+  .contact-method-toggle {
+    display: flex;
+  }
+}
+
+/* Belt-and-suspenders for the conditional "your email" field: .form-field
+   is display: flex (see below), which is an author-stylesheet rule and so
+   normally wins over the user-agent stylesheet's [hidden] { display: none }
+   at equal specificity (author rules are later in the cascade regardless
+   of source order). Restating display: none here, scoped to [hidden],
+   guarantees the field actually disappears instead of collapsing to an
+   empty-looking but still-flex, still-tabbable row. */
+.form-field[hidden] {
+  display: none;
 }
 
 /* Submit button: rebuilt as a <button> (was a plain <input type="submit">) so it
@@ -6149,13 +6237,15 @@ figcaption {
 .booking-modal_grid {
   /* Grid (not flex) specifically so the submit button -- its own grid
      area, "submit", now that it lives outside <form> -- can be
-     repositioned independently of the fields column on mobile: it needs
-     to render after the calendar there, not after the last field like it
-     does in this desktop 2-column layout. See the 767px override below
-     for the mobile area order. */
+     repositioned independently of the two columns below. Strictly 2
+     columns: fields on the left (form-col spans both rows, it's the
+     tallest piece), calendar + submit stacked on the right so the button
+     always sits directly under the calendar, never under the fields. On
+     mobile this collapses to a single column and reorders to fields ->
+     calendar -> submit (see the 767px override below). */
   grid-template-columns: 1.1fr 19rem;
   grid-template-areas: "form calendar"
-    "submit calendar";
+    "form submit";
   align-items: start;
   gap: 3rem;
   display: grid;
@@ -6173,10 +6263,10 @@ figcaption {
 }
 .booking-modal_submit-col {
   grid-area: submit;
-  /* Replaces the margin-bottom the last .form-field used to provide
-     before the button, back when it was the button's preceding sibling
-     inside <form>. */
-  margin-top: 1rem;
+  /* Sits directly under the calendar in the same (right) column now, so
+     this replaces the calendar-col's own internal .4rem gap rather than
+     the old margin that used to separate it from the last form field. */
+  margin-top: .4rem;
 }
 .booking-modal_title {
   font-size: 1.5rem;

@@ -1,9 +1,18 @@
 // Booking, shared between the CTA section form (#booking-form, native date
 // input) and the popup form (#popup-booking-form, custom calendar). Both
-// submit the same way: build a pre-filled WhatsApp message and open wa.me
-// with it. No backend involved, the visitor still has to press "Send"
-// inside WhatsApp themselves, which is also what keeps this naturally
-// spam-resistant without needing Turnstile/honeypot/server validation.
+// forms offer two contact methods:
+//   - WhatsApp (default, and the ONLY option on phones): build a pre-filled
+//     message and open wa.me with it. No backend, the visitor still has to
+//     press "Send" inside WhatsApp themselves, which is also what keeps it
+//     naturally spam-resistant without Turnstile/honeypot/server validation.
+//   - Email (desktop/laptop only, see .contact-method-toggle in site.css,
+//     hidden below 992px): WhatsApp on a laptop means the visitor needs
+//     WhatsApp Web already linked, which is friction email doesn't have.
+//     POSTs to /api/contact (functions/api/contact.js), a real Cloudflare
+//     Pages Function that emails the booking request via Resend -- this
+//     DOES need a real backend, unlike the WhatsApp path, so it also needs
+//     RESEND_API_KEY set as an environment variable on the Cloudflare Pages
+//     project (see artis-band-project-handoff.md for setup steps).
 //
 // This used to live inline in index.html's <head>/<body>, but the site's
 // CSP (script-src 'self', no unsafe-inline) silently blocks inline
@@ -21,6 +30,7 @@
   // logged with enough context to identify which block and why.
   try {
   var WHATSAPP_NUMBER = '40740326997';
+  var CONTACT_API_URL = '/api/contact';
 
   var eventTypeLabels = {
     Nunta: 'Nuntă',
@@ -33,18 +43,111 @@
     return parts.length === 3 ? (parts[2] + '.' + parts[1] + '.' + parts[0]) : isoDate;
   }
 
+  // Copy + submit-button appearance for each contact method. Keeping both
+  // sets of copy here (rather than only swapping the submit button) means
+  // the fail/done messages always describe whichever method is currently
+  // selected, not whichever one happened to be selected when the page
+  // first loaded.
+  var METHOD_COPY = {
+    whatsapp: {
+      submitLabel: 'Trimite pe WhatsApp',
+      submitIcon: 'images/whatsapp-icon-dark.svg',
+      done: 'Se deschide WhatsApp cu mesajul completat, apasă „Trimite" acolo ca să ajungă la noi.',
+      fail: 'Te rugăm să completezi toate câmpurile, tipul evenimentului și data.'
+    },
+    email: {
+      submitLabel: 'Trimite pe Email',
+      submitIcon: 'images/email-icon-dark.svg',
+      done: 'Mulțumim! Cererea a fost trimisă pe email, revenim cât mai curând cu disponibilitatea.',
+      fail: 'Te rugăm să completezi toate câmpurile, inclusiv adresa ta de email.'
+    }
+  };
+
   function bindBookingForm(form) {
     if (!form) return;
 
     var wrap = form.closest('.form-wrap') || form.parentElement;
-    var doneMsg = wrap.querySelector('.w-form-done');
-    var failMsg = wrap.querySelector('.w-form-fail');
+    var doneMsg = wrap.querySelector('[data-booking-done]');
+    var failMsg = wrap.querySelector('[data-booking-fail]');
+    var doneText = doneMsg ? doneMsg.querySelector('[data-booking-done-text]') : null;
+    var failText = failMsg ? failMsg.querySelector('[data-booking-fail-text]') : null;
+
+    // The submit button lives INSIDE <form> on the CTA section, but
+    // OUTSIDE it (associated via form="...") on the popup, where it needs
+    // to sit in its own grid column next to the calendar -- so it can't
+    // always be found as a descendant of either the form or wrap. Falling
+    // back to a document-wide lookup keyed on the same form id covers
+    // both cases.
+    var submitButton = form.querySelector('[data-submit-button]') ||
+      (form.id && document.querySelector('[data-submit-button][form="' + form.id + '"]'));
+    var submitText = submitButton ? submitButton.querySelector('[data-submit-text]') : null;
+    var submitIcon = submitButton ? submitButton.querySelector('[data-submit-icon]') : null;
+
+    var toggle = form.querySelector('[data-contact-method-toggle]');
+    var emailField = form.querySelector('[data-contact-email-field]');
+    var emailInput = emailField ? emailField.querySelector('input') : null;
+
+    function currentMethod() {
+      if (!toggle) return 'whatsapp';
+      var checked = toggle.querySelector('input[name="contactMethod"]:checked');
+      return checked ? checked.value : 'whatsapp';
+    }
+
+    function applyMethod(method) {
+      var copy = METHOD_COPY[method] || METHOD_COPY.whatsapp;
+      if (submitText) submitText.textContent = copy.submitLabel;
+      if (submitIcon) submitIcon.setAttribute('src', copy.submitIcon);
+      if (doneText) doneText.textContent = copy.done;
+      if (failText) failText.textContent = copy.fail;
+      if (emailField) {
+        var showEmail = method === 'email';
+        emailField.hidden = !showEmail;
+        if (emailInput) emailInput.required = showEmail;
+      }
+    }
+
+    if (toggle) {
+      toggle.addEventListener('change', function (e) {
+        if (e.target && e.target.name === 'contactMethod') applyMethod(e.target.value);
+      });
+      applyMethod(currentMethod());
+    }
+
+    function submitViaEmail(payload) {
+      if (submitButton) submitButton.disabled = true;
+      fetch(CONTACT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        if (!res.ok) throw new Error('request_failed');
+        return res.json().catch(function () { return {}; });
+      }).then(function (data) {
+        if (data && data.ok === false) throw new Error(data.error || 'send_failed');
+        if (doneMsg) doneMsg.style.display = 'block';
+      }).catch(function (err) {
+        console.error('[artis:contact-email]', err);
+        if (failMsg) failMsg.style.display = 'block';
+      }).finally(function () {
+        if (submitButton) submitButton.disabled = false;
+      });
+    }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (doneMsg) doneMsg.style.display = 'none';
       if (failMsg) failMsg.style.display = 'none';
 
+      // Native validation (required/type="email") also covers the
+      // conditionally-required email field above, since applyMethod()
+      // toggles its required attribute to match the selected method.
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        if (failMsg) failMsg.style.display = 'block';
+        return;
+      }
+
+      var method = currentMethod();
       var formData = new FormData(form);
       var name = (formData.get('name') || '').toString().trim();
       var eventType = formData.get('eventType');
@@ -52,8 +155,15 @@
       var city = (formData.get('city') || '').toString().trim();
       var venue = (formData.get('venue') || '').toString().trim();
 
-      if (!eventType || !eventDate || !city || !venue) {
-        if (failMsg) failMsg.style.display = 'block';
+      if (method === 'email') {
+        submitViaEmail({
+          name: name,
+          eventType: eventTypeLabels[eventType] || eventType,
+          eventDate: formatDate(eventDate),
+          city: city,
+          venue: venue,
+          senderEmail: (formData.get('senderEmail') || '').toString().trim()
+        });
         return;
       }
 
