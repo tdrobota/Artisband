@@ -1,5 +1,20 @@
 // Cloudflare Pages Function: POST /api/contact
 //
+// PAUSED as of 2026-07: the WhatsApp/Email toggle that used to call this
+// is now force-hidden via CSS (see the ".contact-method-toggle ... {
+// display: none !important; }" override in css/site.css) because sends
+// kept failing after RESEND_API_KEY + domain verification were both set
+// up correctly, and the Resend error wasn't clear enough to debug on the
+// spot. Nothing currently reaches this endpoint through the UI -- the
+// form is WhatsApp-only again, with a plain mailto link (.form-note in
+// the HTML) as the alternative. This file is left in place so re-
+// enabling later is just: undo that CSS override, then dig into why
+// Resend was rejecting the send (see git history around this date for
+// the last known error: {"ok":false,"error":"send_failed"}, HTTP 502,
+// i.e. Resend's own API call was non-ok even with a verified domain and
+// a valid key -- worth checking the "from" address format, API key
+// permissions/domain scoping, and Resend's dashboard logs directly).
+//
 // Only reached from the "Email" side of the WhatsApp/Email toggle (see
 // .contact-method-toggle in css/site.css and bindBookingForm in
 // js/booking-index.js / booking-about.js / booking-work.js) -- WhatsApp
@@ -115,12 +130,7 @@ export async function onRequestPost(context) {
     if (!resendResponse.ok) {
       const errorBody = await resendResponse.text().catch(function () { return ''; });
       console.error('[api/contact] Resend request failed', resendResponse.status, errorBody);
-      // TEMPORARY: surfaces Resend's actual rejection reason in the
-      // response while diagnosing the initial setup (status/body Resend
-      // itself returned). Remove resend_status/resend_body once sending
-      // is confirmed working end-to-end -- not something a real visitor
-      // needs to see.
-      return jsonResponse({ ok: false, error: 'send_failed', resend_status: resendResponse.status, resend_body: errorBody }, 502);
+      return jsonResponse({ ok: false, error: 'send_failed' }, 502);
     }
 
     return jsonResponse({ ok: true });

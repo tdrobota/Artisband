@@ -6053,6 +6053,37 @@ figcaption {
   }
 }
 
+/* PAUSED (see .form-note below for the replacement): the Resend-backed
+   email send kept failing after the domain/API key were set up correctly
+   in Cloudflare + Resend, and the error wasn't clear enough to debug
+   quickly, so this reverts the form to WhatsApp-only for now rather than
+   leaving a broken "Email" option live. Overrides the min-width: 992px
+   rule above unconditionally -- nothing else needs to change to bring
+   this back later (undo this override once the send issue is diagnosed
+   and fixed; the toggle markup, CSS and booking-*.js submit branch are
+   all still intact underneath this). */
+.contact-method-toggle,
+.form-field[data-contact-email-field] {
+  display: none !important;
+}
+
+/* Simple static replacement for the toggle above: no functionality, just
+   a plain mailto link so visitors who'd rather not use WhatsApp still
+   have an obvious way to reach out. Shown on every breakpoint (unlike the
+   paused toggle, which was desktop-only) since a mailto link works fine
+   on phones too. */
+.form-note {
+  color: var(--_colors---primary--grey, #666);
+  margin-top: -.4rem;
+  margin-bottom: 1rem;
+  font-size: .85rem;
+}
+.form-note a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 /* Belt-and-suspenders for the conditional "your email" field: .form-field
    is display: flex (see below), which is an author-stylesheet rule and so
    normally wins over the user-agent stylesheet's [hidden] { display: none }

@@ -193,6 +193,11 @@ from before still apply unchanged.
 
 ### Hybrid contact method: WhatsApp + Email, desktop only
 
+**PAUSED as of 2026-07** — see the new subsection right after this one for why and
+what's live instead. Everything described below is still true of the code (it's all
+still in the repo, just force-hidden via CSS), kept for whenever this gets picked back
+up.
+
 Client feedback after using the site on a laptop: WhatsApp-only is great on a phone
 (fast, no setup, exchanges phone numbers automatically) but awkward on a laptop, since
 it needs WhatsApp Web already linked to that device first. Added an Email option
@@ -246,6 +251,53 @@ actual problem.
 **New assets:** `images/email-icon-dark.svg` / `images/email-icon.svg` (black/white
 envelope icon, matching the existing `whatsapp-icon-dark.svg` / `whatsapp-icon.svg`
 naming convention).
+
+### Email option paused, plain mailto note added instead
+
+Client finished the manual Resend setup above (domain verified in Resend, API key
+created, `RESEND_API_KEY` added as a Cloudflare secret) — but sending still failed:
+`functions/api/contact.js` got past the `email_not_configured` check (so the key is
+being read fine) but Resend's own API call came back non-OK, surfacing to the visitor
+as `{"ok":false,"error":"send_failed"}` (HTTP 502). Added a temporary
+`resend_status`/`resend_body` field to the function's error response to see Resend's
+actual rejection reason, but the message that came back wasn't clear enough to
+diagnose on the spot, and client asked to stop debugging and just hide the feature for
+now rather than ship something broken. That temporary debug addition has been reverted.
+
+**What changed:**
+- `css/site.css` — a single rule right after the existing `.contact-method-toggle`
+  desktop media query:
+  ```css
+  .contact-method-toggle,
+  .form-field[data-contact-email-field] {
+    display: none !important;
+  }
+  ```
+  Forces the toggle and the conditional email field hidden at every breakpoint,
+  overriding the min-width: 992px rule above it. The toggle's own default state
+  (`whatsapp` radio pre-checked) means the form falls back to exactly the WhatsApp-only
+  behavior it had before the hybrid feature, with zero JS changes needed —
+  `currentMethod()` in the booking-*.js files just always reads `whatsapp` now, since
+  there's no way left for a visitor to select `email`.
+- `index.html`, `about.html`, `work.html` — added one line right after each form
+  (the CTA form and both/either popup form, depending on the page):
+  ```html
+  <p class="form-note">Preferi email în loc de WhatsApp? Scrie-ne la
+  <a href="mailto:contact@artisband.ro">contact@artisband.ro</a>.</p>
+  ```
+  Plain `mailto:` link, no functionality beyond what the browser/OS does by default
+  with that link. Shown at every breakpoint (unlike the paused toggle, which was
+  desktop-only) since a mailto link is just as usable on a phone.
+- `functions/api/contact.js` — reverted the temporary debug fields, left the function
+  itself completely in place (just unreachable through the UI now) with a comment at
+  the top explaining it's paused and pointing at the last known error for whoever
+  picks this back up.
+
+**To re-enable later:** remove the `display: none !important` override in site.css,
+then actually track down why Resend rejected the send — worth checking directly in
+Resend's own dashboard logs (not just this function's console.error output), and
+double-checking the exact `from` address format/domain against what Resend has
+verified, plus whether the API key is scoped to that specific domain.
 
 ### Follow-up polish: single-card look and vertical centering
 
