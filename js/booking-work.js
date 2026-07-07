@@ -411,9 +411,55 @@
   if (!modal) return;
 
   var frameWrap = modal.querySelector('[data-video-frame-wrap]');
+  var suggestionsWrap = modal.querySelector('[data-video-suggestions]');
   var closeTriggers = modal.querySelectorAll('[data-video-modal-close]');
   var dialog = modal.querySelector('.video-modal_dialog');
   var cards = document.querySelectorAll('.work_card');
+
+  // Video list used to build our own "suggested videos" strip inside the
+  // modal -- see the note by the iframe src below for why this replaces
+  // YouTube's built-in suggestions instead of just letting those through.
+  // Starts from this page's own cards (id/title), then adds a few more
+  // channel videos that aren't shown as cards in the main grid -- kept out
+  // of the grid on purpose (keeps it to the original 6), but still worth
+  // surfacing once someone's already watching a video.
+  var videoList = [];
+  cards.forEach(function (card) {
+    var id = card.getAttribute('data-video-id');
+    if (!id) return;
+    var titleEl = card.querySelector('.work_card-title');
+    videoList.push({
+      id: id,
+      title: titleEl ? titleEl.textContent : '',
+    });
+  });
+  [
+    { id: 'z6lBwGKD7yo', title: 'Playing with Fire (cover Ovi & Paula Seling) - live la Voci de Îngeri' },
+    { id: 'AoelJ_zPxq0', title: 'A Sky Full of Stars (cover Coldplay) - live la Voci de Îngeri' },
+    { id: 'Y4uz9warBCo', title: 'Lose Control (cover Teddy Swims) - live la Voci de Îngeri' },
+    { id: 'nrZ8yjcl4Q4', title: 'Shallow (cover Lady Gaga & Bradley Cooper)' },
+    { id: 'CNEdL2IYdmk', title: 'Mai Frumoasă (cover Laura Stoica)' },
+  ].forEach(function (video) {
+    videoList.push(video);
+  });
+
+  function renderSuggestions(currentId) {
+    if (!suggestionsWrap) return;
+    suggestionsWrap.innerHTML = '';
+    videoList.forEach(function (video) {
+      if (video.id === currentId) return;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'video-modal_suggestion';
+      btn.innerHTML =
+        '<img class="video-modal_suggestion-thumb" src="https://i.ytimg.com/vi/' + video.id + '/mqdefault.jpg" alt="" loading="lazy">' +
+        '<span class="video-modal_suggestion-title">' + video.title + '</span>';
+      btn.addEventListener('click', function () {
+        openVideo(video.id);
+      });
+      suggestionsWrap.appendChild(btn);
+    });
+  }
 
   function openVideo(id) {
     // referrerpolicy is required here: YouTube's embedded player now
@@ -422,8 +468,19 @@
     // error"). Browsers can otherwise omit or strip that header for a
     // cross-origin iframe depending on the page/browser's own referrer
     // policy, so it's set explicitly rather than left to the default.
+    //
+    // iv_load_policy=3 turns off the clickable mid-video "card" annotations,
+    // modestbranding=1 trims the YouTube logo from the control bar, and
+    // loop=1 + playlist=<same id> makes the video loop itself instead of
+    // ending into YouTube's own "related videos" end screen. Between the
+    // three, YouTube's native suggestion surfaces are suppressed as far as
+    // the embed API allows -- our own suggestions strip (below) replaces
+    // that function instead, since clicks on YouTube's native suggestions
+    // can't be kept in-page (cross-origin iframe, see note above openVideo).
     frameWrap.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id +
-      '?autoplay=1&rel=0" title="Artis Band video" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+      '?autoplay=1&rel=0&iv_load_policy=3&modestbranding=1&loop=1&playlist=' + id +
+      '" title="Artis Band video" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+    renderSuggestions(id);
     modal.classList.add('is-open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
