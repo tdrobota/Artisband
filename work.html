@@ -136,7 +136,12 @@
         <div class="padding-global">
           <div class="container-large">
             <div class="work_grid-title">Cele mai recente momente live</div>
-            <div class="work_grid">
+            <!-- Populated with the channel's actual latest uploads by the
+                 video-grid loader in booking-work.js, which fetches
+                 /api/videos (functions/api/videos.js) and swaps this
+                 fallback markup out on success. Left in place as a static
+                 fallback for no-JS visitors or if that fetch ever fails. -->
+            <div class="work_grid" data-video-grid>
               <button type="button" class="work_card" data-video-id="bWhj6gCYDCU">
                 <div class="work_thumb-wrap">
                   <img class="work_thumb" animation="scale" loading="lazy" src="https://i.ytimg.com/vi/bWhj6gCYDCU/hqdefault.jpg" alt="">

@@ -19,6 +19,15 @@
 // meant the WhatsApp button, the booking calendar, the video lightbox and
 // the pinned hero scene never ran. Moving this to an external, same-origin
 // file keeps CSP strict while letting the code actually run.
+
+// Populated by the video-grid loader below once /api/videos resolves (full
+// fetched list, titles already cleaned) -- also read by the video-lightbox
+// block further down to build its "suggested videos" strip, so both the
+// grid and the suggestions share one fetch instead of each hitting the
+// endpoint separately. Stays null if the fetch never resolves/fails, which
+// both blocks treat as "fall back to whatever's static in the HTML".
+var artisVideoFeed = null;
+
 (function () {
   // Each of this file's independent setup blocks is wrapped in its own
   // try/catch so a failure in one (whatever it turns out to be) can't
@@ -400,11 +409,128 @@
   }
 })();
 
+// Video grid: replaces the static fallback cards baked into work.html
+// (data-video-grid) with the channel's actual latest uploads, fetched from
+// /api/videos (functions/api/videos.js, itself backed by YouTube's public
+// Atom feed -- see that file for why). Runs before the lightbox block below
+// so the click-delegation and live suggestions list there pick up whichever
+// cards end up on the page, fallback or fetched.
+(function () {
+  try {
+  var grid = document.querySelector('[data-video-grid]');
+  if (!grid) return;
+
+  var GRID_SIZE = 6; // matches .work_grid's 3-column desktop layout (2 full rows)
+
+  function formatViews(n) {
+    if (n == null) return '';
+    if (n < 1000) return String(n);
+    var thousands = n / 1000;
+    var rounded = thousands >= 10 ? Math.round(thousands) : Math.round(thousands * 10) / 10;
+    return rounded + 'K';
+  }
+
+  function formatRelativeTime(iso) {
+    if (!iso) return '';
+    var diffMs = Date.now() - new Date(iso).getTime();
+    var hour = 3600000, day = 86400000, month = day * 30, year = day * 365;
+
+    if (diffMs < hour) return 'acum câteva minute';
+    if (diffMs < day) {
+      var hours = Math.floor(diffMs / hour);
+      return 'acum ' + hours + (hours === 1 ? ' oră' : ' ore');
+    }
+    if (diffMs < month) {
+      var days = Math.floor(diffMs / day);
+      return 'acum ' + days + (days === 1 ? ' zi' : ' zile');
+    }
+    if (diffMs < year) {
+      var months = Math.floor(diffMs / month);
+      return 'acum ' + months + (months === 1 ? ' lună' : ' luni');
+    }
+    var years = Math.floor(diffMs / year);
+    return 'acum ' + years + (years === 1 ? ' an' : ' ani');
+  }
+
+  // The feed's raw titles are all prefixed "Artis Band - ..."; the existing
+  // hand-picked cards never repeated the band's own name in their titles
+  // (redundant on a page that's already artisband.ro), so strip the same
+  // prefix here to match.
+  function cleanTitle(title) {
+    return title.replace(/^Artis\s*Band\s*[-–:]\s*/i, '').trim();
+  }
+
+  function renderVideoCard(video) {
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'work_card';
+    card.setAttribute('data-video-id', video.id);
+    card.innerHTML =
+      '<div class="work_thumb-wrap">' +
+        '<img class="work_thumb" animation="scale" loading="lazy" src="https://i.ytimg.com/vi/' + video.id + '/hqdefault.jpg" alt="">' +
+        '<div class="work_play-badge">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 4L20 12L6 20V4Z" fill="currentColor"/></svg>' +
+        '</div>' +
+      '</div>' +
+      '<div class="work_card-info">' +
+        '<div class="work_card-title"></div>' +
+        '<div class="work_card-meta"></div>' +
+      '</div>';
+    card.querySelector('.work_card-title').textContent = video.title;
+    var metaParts = [];
+    if (video.views != null) metaParts.push(formatViews(video.views) + ' vizualizări');
+    var relativeTime = formatRelativeTime(video.publishedAt);
+    if (relativeTime) metaParts.push(relativeTime);
+    card.querySelector('.work_card-meta').textContent = metaParts.join(' · ');
+    return card;
+  }
+
+  fetch('/api/videos').then(function (res) {
+    if (!res.ok) throw new Error('request_failed');
+    return res.json();
+  }).then(function (data) {
+    if (!data || data.ok !== true || !Array.isArray(data.videos) || !data.videos.length) {
+      throw new Error((data && data.error) || 'no_videos');
+    }
+    // Titles cleaned once here, up front -- both the grid cards below and
+    // the lightbox's suggestions strip (reading artisVideoFeed directly)
+    // then just use video.title as-is.
+    artisVideoFeed = data.videos.map(function (video) {
+      return {
+        id: video.id,
+        title: cleanTitle(video.title),
+        views: video.views,
+        publishedAt: video.publishedAt
+      };
+    });
+
+    grid.innerHTML = '';
+    artisVideoFeed.slice(0, GRID_SIZE).forEach(function (video) {
+      grid.appendChild(renderVideoCard(video));
+    });
+  }).catch(function (err) {
+    // Static fallback cards already in the HTML stay as-is, and
+    // artisVideoFeed stays null so the lightbox's suggestions strip falls
+    // back to its own DOM+bonus-list logic too.
+    console.error('[artis:video-grid]', err);
+  });
+  } catch (err) {
+    console.error('[artis:video-grid]', err);
+  }
+})();
+
 // Video showcase: clicking a card opens the lightbox with a playing
 // (autoplay) YouTube embed built from the card's data-video-id. Building
 // the iframe fresh on open (and destroying it on close) is what actually
 // stops the video, simply hiding the modal would leave it playing
 // silently in the background.
+//
+// Cards are matched via event delegation (document-level click listener,
+// see below) rather than binding each .work_card directly, since the
+// video-grid loader above replaces work.html's fallback cards with freshly
+// fetched ones asynchronously -- delegation means clicks on those still
+// work without this block needing to know or care whether that fetch has
+// resolved yet.
 (function () {
   try {
   var modal = document.getElementById('video-modal');
@@ -414,39 +540,48 @@
   var suggestionsWrap = modal.querySelector('[data-video-suggestions]');
   var closeTriggers = modal.querySelectorAll('[data-video-modal-close]');
   var dialog = modal.querySelector('.video-modal_dialog');
-  var cards = document.querySelectorAll('.work_card');
 
-  // Video list used to build our own "suggested videos" strip inside the
-  // modal -- see the note by the iframe src below for why this replaces
-  // YouTube's built-in suggestions instead of just letting those through.
-  // Starts from this page's own cards (id/title), then adds a few more
-  // channel videos that aren't shown as cards in the main grid -- kept out
-  // of the grid on purpose (keeps it to the original 6), but still worth
-  // surfacing once someone's already watching a video.
-  var videoList = [];
-  cards.forEach(function (card) {
-    var id = card.getAttribute('data-video-id');
-    if (!id) return;
-    var titleEl = card.querySelector('.work_card-title');
-    videoList.push({
-      id: id,
-      title: titleEl ? titleEl.textContent : '',
-    });
-  });
-  [
+  // Extra channel videos that aren't shown as cards in the main grid --
+  // kept out of the grid on purpose, but still worth surfacing in the
+  // suggestions strip once someone's already watching a video.
+  var BONUS_VIDEOS = [
     { id: 'z6lBwGKD7yo', title: 'Playing with Fire (cover Ovi & Paula Seling) - live la Voci de Îngeri' },
     { id: 'AoelJ_zPxq0', title: 'A Sky Full of Stars (cover Coldplay) - live la Voci de Îngeri' },
     { id: 'Y4uz9warBCo', title: 'Lose Control (cover Teddy Swims) - live la Voci de Îngeri' },
     { id: 'nrZ8yjcl4Q4', title: 'Shallow (cover Lady Gaga & Bradley Cooper)' },
     { id: 'CNEdL2IYdmk', title: 'Mai Frumoasă (cover Laura Stoica)' },
-  ].forEach(function (video) {
-    videoList.push(video);
-  });
+  ];
+
+  // Video list used to build our own "suggested videos" strip inside the
+  // modal -- see the note by the iframe src below for why this replaces
+  // YouTube's built-in suggestions instead of just letting those through.
+  // Prefers artisVideoFeed (the video-grid loader's fetched /api/videos
+  // result, up to 12 videos -- more than the 6 shown as grid cards, so
+  // there's always something left to suggest beyond "the same 6 already on
+  // the page"). Falls back to reading whatever's live in the DOM plus the
+  // fixed BONUS_VIDEOS list only if that fetch never resolved/failed --
+  // same fallback-of-a-fallback shape as the grid itself.
+  function buildVideoList() {
+    if (artisVideoFeed && artisVideoFeed.length) return artisVideoFeed.slice();
+
+    var list = [];
+    document.querySelectorAll('.work_card').forEach(function (card) {
+      var id = card.getAttribute('data-video-id');
+      if (!id) return;
+      var titleEl = card.querySelector('.work_card-title');
+      list.push({ id: id, title: titleEl ? titleEl.textContent : '' });
+    });
+    BONUS_VIDEOS.forEach(function (video) {
+      var alreadyListed = list.some(function (v) { return v.id === video.id; });
+      if (!alreadyListed) list.push(video);
+    });
+    return list;
+  }
 
   function renderSuggestions(currentId) {
     if (!suggestionsWrap) return;
     suggestionsWrap.innerHTML = '';
-    videoList.forEach(function (video) {
+    buildVideoList().forEach(function (video) {
       if (video.id === currentId) return;
       var btn = document.createElement('button');
       btn.type = 'button';
@@ -493,11 +628,11 @@
     frameWrap.innerHTML = '';
   }
 
-  cards.forEach(function (card) {
-    card.addEventListener('click', function () {
-      var id = card.getAttribute('data-video-id');
-      if (id) openVideo(id);
-    });
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest ? e.target.closest('.work_card') : null;
+    if (!card) return;
+    var id = card.getAttribute('data-video-id');
+    if (id) openVideo(id);
   });
 
   closeTriggers.forEach(function (el) {
